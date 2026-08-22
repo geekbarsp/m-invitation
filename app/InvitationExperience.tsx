@@ -18,6 +18,8 @@ export default function InvitationExperience() {
   const flap = useRef<HTMLDivElement>(null);
   const seal = useRef<HTMLSpanElement>(null);
   const innerCard = useRef<HTMLDivElement>(null);
+  const stationery = useRef<HTMLDivElement>(null);
+  const introDetails = useRef<HTMLDivElement>(null);
   const [opened, setOpened] = useState(false);
   const [music, setMusic] = useState(false);
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
@@ -64,15 +66,23 @@ export default function InvitationExperience() {
     if (opened) return;
     setOpened(true);
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return void gsap.set(intro.current, { autoAlpha: 0, pointerEvents: "none" });
+    const compact = window.matchMedia("(max-width: 800px)").matches;
     gsap.timeline({ defaults: { ease: "power3.out" } })
-      .to(".intro-eyebrow, .open-hint", { opacity: 0, duration: 0.3 }, 0)
+      .to(".intro-heading, .open-hint", { opacity: 0, duration: 0.3 }, 0)
       .to(seal.current, { scale: 0.82, opacity: 0, duration: 0.36 }, 0)
       .to(flap.current, { rotateX: -176, duration: 0.95, ease: "power2.inOut" }, 0.18)
       .set(flap.current, { zIndex: 0 })
       .set(innerCard.current, { zIndex: 7 })
       .to(innerCard.current, { yPercent: -76, scale: 1.04, duration: 1.15 }, "-=.05")
-      .to(envelope.current, { y: 82, scale: 0.94, duration: 0.75 }, "-=.35")
-      .to(intro.current, { yPercent: -104, opacity: 0, duration: 1.15, delay: 0.45, pointerEvents: "none" })
+      .to(envelope.current, { y: 58, scale: 0.96, duration: 0.75 }, "-=.35")
+      .to(envelope.current, { xPercent: 0, y: compact ? -118 : -82, scale: compact ? 0.7 : 0.72, duration: 1.05, ease: "power3.inOut" }, "+=2")
+      .to(envelope.current, { autoAlpha: 0, y: compact ? -138 : -104, duration: 0.55 }, "-=.2")
+      .to(".intro-flower", { opacity: 0.08, scale: 0.88, duration: 0.8 }, "-=1")
+      .fromTo(stationery.current, { autoAlpha: 0, y: 34, scale: 0.93 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1, ease: "back.out(1.25)" }, "-=.62")
+      .fromTo(".stationery-piece", { y: 24, opacity: 0, rotate: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.65 }, "-=.72")
+      .fromTo(".stationery-copy", { y: 8, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.07, duration: 0.55 }, "-=.48")
+      .fromTo(introDetails.current, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.85 }, "-=.45")
+      .to(intro.current, { yPercent: -104, opacity: 0, duration: 1.15, delay: 5, pointerEvents: "none" })
       .fromTo(".hero-copy > *", { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.9 }, "-=.65");
   };
 
@@ -87,17 +97,52 @@ export default function InvitationExperience() {
     <div ref={root} className={`site-shell ${opened ? "is-open" : ""}`}>
       <div className="grain" aria-hidden="true" />
       <div ref={intro} className="invitation-intro" aria-hidden={opened}>
-        <p className="intro-eyebrow">You’re invited</p>
-        <button ref={envelope} className="envelope" onClick={openInvitation} aria-label="Open the wedding invitation">
-          <div className="envelope-back" /><div ref={innerCard} className="envelope-card"><span className="monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><strong>{invitation.bride} &amp; {invitation.groom}</strong><small>{invitation.date}</small></div>
-          <div className="envelope-front" /><div className="fold fold-left" /><div className="fold fold-right" /><div className="fold fold-bottom" /><div ref={flap} className="envelope-flap" /><span ref={seal} className="wax-seal">{invitation.bride[0]}{invitation.groom[0]}</span>
-        </button>
-        <Image className="intro-flower intro-flower-left" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" priority />
-        <Image className="intro-flower intro-flower-right" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" priority />
+        <div className="intro-frame" aria-hidden="true"><span /><span /><span /><span /></div>
+        <div className="intro-heading"><span>A celebration of love</span><p className="intro-eyebrow">You’re invited</p><small>Mayumi &amp; Mardy · 18.12.26</small></div>
+        <div className="envelope-breathe">
+          <button ref={envelope} className="envelope" onClick={openInvitation} aria-label="Open the wedding invitation">
+            <div className="envelope-shadow" /><div className="envelope-back" />
+            <div ref={innerCard} className="envelope-card"><span className="card-kicker">Together with their families</span><span className="monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><strong>{invitation.bride} &amp; {invitation.groom}</strong><i>request the pleasure of your company</i><small>{invitation.date}</small></div>
+            <div className="envelope-front" /><div className="fold fold-left" /><div className="fold fold-right" /><div className="fold fold-bottom" /><div className="envelope-border" /><div ref={flap} className="envelope-flap" /><span ref={seal} className="wax-seal"><span>{invitation.bride[0]}<i>&amp;</i>{invitation.groom[0]}</span></span>
+          </button>
+        </div>
+        <Image className="intro-flower intro-flower-left" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" loading="eager" />
+        <Image className="intro-flower intro-flower-right" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" loading="eager" />
+        <div ref={stationery} className="stationery-collage" aria-hidden="true">
+          <Image
+            className="stationery-piece canva-stationery"
+            src="/assets/stationery-clean-v2.png"
+            width={1025}
+            height={1535}
+            alt="Olive and ivory wedding stationery suite for Mayumi and Mardy"
+            loading="eager"
+          />
+          <div className="stationery-copy stationery-monogram">M<span>&amp;</span>M</div>
+          <div className="stationery-copy stationery-save-copy">
+            <span>Save</span><small>the</small><span>Date</span><i>December 18, 2026</i>
+          </div>
+          <div className="stationery-copy stationery-invite-copy">
+            <p>We</p>
+            <strong>Mayumi <i>&amp;</i><br />Mardy</strong>
+            <small>Cordially invite you to our<br />wedding celebration</small>
+            <b>December 18, 2026<br />Friday · {invitation.ceremonyTime}<br />{invitation.venue}<br />Pasig City, Metro Manila</b>
+          </div>
+          <div className="stationery-copy stationery-tag-copy"><span>details</span><strong>HERE</strong></div>
+        </div>
+        <div ref={introDetails} className="intro-details">
+          <p className="intro-details-kicker">Day left before we say “I do”</p>
+          <div className="intro-countdown" aria-label="Wedding countdown">
+            {Object.entries(countdown).map(([label, value]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
+          </div>
+          <span className="intro-details-rule" />
+          <p className="intro-details-note">Excited to celebrate our day with you</p>
+          <strong className="intro-details-names">{invitation.bride} &amp; {invitation.groom}</strong>
+          <small>{invitation.date}</small>
+        </div>
         <button className="open-hint" onClick={openInvitation}>Click to open <ArrowDown size={14} /></button>
       </div>
       <main>
-        <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" priority alt="A glass garden wedding venue at golden hour" /></div><div className="hero-shade" />
+        <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A glass garden wedding venue at golden hour" /></div><div className="hero-shade" />
           <div className="hero-copy"><p className="eyebrow">Together with their families</p><h1 id="hero-title"><span>{invitation.bride}</span><i>&amp;</i><span>{invitation.groom}</span></h1><div className="hero-rule" /><p>{invitation.date} · {invitation.location}</p><a href="#welcome" className="explore">Enter our story <ArrowDown size={15} /></a></div>
         </section>
         <section id="welcome" className="welcome paper-section"><Image className="side-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="welcome-copy"><p className="eyebrow olive">A joyful beginning</p><h2>Welcome</h2><p>With joyful hearts, we invite you to celebrate our wedding as we begin our life together in love and faith.</p><span className="signature">{invitation.bride[0]} &amp; {invitation.groom[0]}</span></div><div data-reveal className="save-date-card"><small>Save the date</small><strong>18</strong><span>December · 2026</span></div></section>
