@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import type { AnimationItem } from "lottie-web";
 import { ArrowDown, ArrowUpRight, Check, MapPin, Music2, Pause, Play, Repeat2, SkipBack, SkipForward, VolumeX } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -22,9 +23,13 @@ export default function InvitationExperience() {
   const introDetails = useRef<HTMLDivElement>(null);
   const detailsPopup = useRef<HTMLDivElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
+  const transitionLayer = useRef<HTMLDivElement>(null);
+  const transitionAnimation = useRef<HTMLDivElement>(null);
+  const lottieAnimation = useRef<AnimationItem | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const [opened, setOpened] = useState(false);
   const [music, setMusic] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -55,6 +60,33 @@ export default function InvitationExperience() {
       }
     }, root);
     return () => { document.documentElement.classList.remove("invitation-locked"); ctx.revert(); ScrollTrigger.getAll().forEach((t) => t.kill()); gsap.ticker.remove(update); lenis.destroy(); lenisRef.current = null; };
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+    const loadTransition = async () => {
+      const [{ default: lottie }, response] = await Promise.all([
+        import("lottie-web"),
+        fetch("/animations/fullscreen-love-transition.json"),
+      ]);
+      if (!response.ok) throw new Error("Unable to load the site transition animation.");
+      const animationData = await response.json();
+      if (disposed || !transitionAnimation.current) return;
+      lottieAnimation.current = lottie.loadAnimation({
+        container: transitionAnimation.current,
+        renderer: "svg",
+        loop: false,
+        autoplay: false,
+        animationData,
+        rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+      });
+    };
+    void loadTransition().catch(() => { lottieAnimation.current = null; });
+    return () => {
+      disposed = true;
+      lottieAnimation.current?.destroy();
+      lottieAnimation.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -102,13 +134,36 @@ export default function InvitationExperience() {
   };
 
   const enterSite = () => {
-    document.documentElement.classList.remove("invitation-locked");
-    window.scrollTo({ top: 0, behavior: "auto" });
-    lenisRef.current?.start();
-    window.requestAnimationFrame(() => lenisRef.current?.resize());
-    gsap.timeline({ defaults: { ease: "power3.inOut" } })
-      .to(intro.current, { yPercent: -104, opacity: 0, duration: 1.05, pointerEvents: "none" })
-      .fromTo(".hero-copy > *", { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.9 }, "-=.55");
+    if (transitioning) return;
+    setTransitioning(true);
+    const layer = transitionLayer.current;
+    const animation = lottieAnimation.current;
+
+    const revealSite = () => {
+      document.documentElement.classList.remove("invitation-locked");
+      window.scrollTo({ top: 0, behavior: "auto" });
+      lenisRef.current?.start();
+      window.requestAnimationFrame(() => lenisRef.current?.resize());
+      gsap.set(intro.current, { yPercent: -104, autoAlpha: 0, pointerEvents: "none" });
+      gsap.fromTo(".hero-copy > *", { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.9, ease: "power3.out" });
+      gsap.to(layer, { autoAlpha: 0, duration: 0.58, ease: "power2.out", onComplete: () => { gsap.set(layer, { pointerEvents: "none" }); setTransitioning(false); } });
+    };
+
+    if (!layer) { revealSite(); return; }
+    gsap.set(layer, { autoAlpha: 1, pointerEvents: "auto", clipPath: "none", backgroundColor: "transparent" });
+
+    if (!animation || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.fromTo(layer, { clipPath: "circle(0% at 50% 50%)", backgroundColor: "#66733f" }, { clipPath: "circle(150% at 50% 50%)", duration: 0.72, ease: "power3.inOut", onComplete: revealSite });
+      return;
+    }
+
+    const onComplete = () => {
+      animation.removeEventListener("complete", onComplete);
+      revealSite();
+    };
+    animation.addEventListener("complete", onComplete);
+    animation.goToAndStop(0, true);
+    animation.play();
   };
 
   const toggleMusic = () => {
@@ -155,15 +210,14 @@ export default function InvitationExperience() {
           />
           <div className="stationery-copy stationery-monogram">M<span>&amp;</span>M</div>
           <div className="stationery-copy stationery-save-copy">
-            <span>Save</span><small>the</small><span>Date</span><i>December 18, 2026</i>
+            <span>In you,</span><strong>I found my<br />forever.</strong>
           </div>
           <div className="stationery-copy stationery-invite-copy">
             <p>We</p>
             <strong>Mayumi <i>&amp;</i><br />Mardy</strong>
             <small>Cordially invite you to our<br />wedding celebration</small>
-            <b>December 18, 2026<br />Friday · {invitation.ceremonyTime}<br />{invitation.venue}<br />Pasig City, Metro Manila</b>
+            <b>December 18, 2026<br />Friday · {invitation.ceremonyTime}<br />{invitation.venue}<br />{invitation.location}</b>
           </div>
-          <div className="stationery-copy stationery-tag-copy"><span>details</span><strong>HERE</strong></div>
         </div>
         <div ref={introDetails} className="intro-details">
           <p className="intro-details-kicker">Day left before we say “I do”</p>
@@ -196,11 +250,22 @@ export default function InvitationExperience() {
                   </div>
                 </div>
               </div>
-              <div className="popup-envelope-asset"><Image className="popup-envelope-image" src="/assets/stationery-clean-v2.png" width={1025} height={1535} sizes="(max-width: 800px) 55vw, 460px" alt="Ivory and olive wedding stationery with flowers" priority /></div>
+              <div className="popup-envelope-asset">
+                <div className="popup-envelope-sheet">
+                  <Image className="popup-envelope-image" src="/assets/stationery-clean-v2.png" width={1025} height={1535} sizes="(max-width: 800px) 55vw, 460px" alt="Ivory and olive wedding stationery with flowers" priority />
+                  <div className="popup-stationery-copy popup-stationery-monogram">M<span>&amp;</span>M</div>
+                  <div className="popup-stationery-copy popup-stationery-quote"><span>In you,</span><strong>I found my<br />forever.</strong></div>
+                  <div className="popup-stationery-copy popup-stationery-invite">
+                    <p>We</p><strong>Mayumi <i>&amp;</i><br />Mardy</strong>
+                    <small>Cordially invite you to our<br />wedding celebration</small>
+                    <b>{invitation.date}<br />{invitation.ceremonyTime}<br />{invitation.location}</b>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section className="popup-save-date">
-              <div className="popup-save-lockup"><span>Save</span><small>the</small><span>Date</span><b>{invitation.bride[0]} &amp; {invitation.groom[0]}</b><i>{invitation.date}</i></div>
+              <div className="popup-save-lockup"><div className="popup-save-first-line"><span>Save</span><small>the</small></div><span>Date</span><b>{invitation.bride[0]} &amp; {invitation.groom[0]}</b><i>{invitation.date}</i></div>
               <div className="popup-countdown-wrap"><p>Day left before we say <em>“I do”</em></p><div className="popup-countdown">{Object.entries(countdown).map(([label, value]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div><small>{invitation.ceremonyTime} · {invitation.venue}<br />{invitation.location}</small></div>
             </section>
 
@@ -215,16 +280,16 @@ export default function InvitationExperience() {
             <section className="popup-section popup-attire">
               <p className="popup-kicker">Celebrate in style</p><h2>Attire <em>Guide</em></h2>
               <div className="attire-grid">
-                <article><div className="attire-figure formal" aria-hidden="true"><span /><span /></div><h3>Principal Sponsors</h3><p>Black suit · Khaki brown gown</p><div className="mini-swatches"><i /><i /><i /></div></article>
-                <article><div className="attire-figure guests" aria-hidden="true"><span /><span /><span /></div><h3>Guests</h3><p>Garden formal in beige and earth tones</p><div className="mini-swatches beige"><i /><i /><i /></div></article>
-                <article><div className="attire-figure party" aria-hidden="true"><span /><span /><span /></div><h3>Wedding Party</h3><p>Black suits · Olive green gowns</p><div className="mini-swatches olive"><i /><i /><i /></div></article>
-                <article><div className="attire-figure children" aria-hidden="true"><span /><span /><span /></div><h3>Little Ones</h3><p>White long sleeves and beige dresses</p><div className="mini-swatches light"><i /><i /><i /></div></article>
+                <article><div className="attire-art-wrap"><Image className="attire-art" src="/assets/attire/principal-sponsors.png" width={1278} height={1230} alt="Principal sponsors in a black suit and khaki brown gown" /></div><h3>Principal Sponsors</h3><p>Black suit · Khaki brown gown</p><div className="mini-swatches"><i /><i /><i /></div></article>
+                <article><div className="attire-art-wrap"><Image className="attire-art" src="/assets/attire/guests.png" width={1536} height={1024} alt="Wedding guests in beige and earth-tone garden formal attire" /></div><h3>Guests</h3><p>Garden formal in beige and earth tones</p><div className="mini-swatches beige"><i /><i /><i /></div></article>
+                <article><div className="attire-art-wrap"><Image className="attire-art" src="/assets/attire/secondary-sponsors.png" width={1536} height={1024} alt="Secondary sponsors in black suits and olive green gowns" /></div><h3>Secondary Sponsors</h3><p>Black suits · Olive green gowns</p><div className="mini-swatches olive"><i /><i /><i /></div></article>
+                <article><div className="attire-art-wrap"><Image className="attire-art" src="/assets/attire/children.png" width={1536} height={1024} alt="Flower girls and bearers in white and beige formal attire" /></div><h3>Flower Girls &amp; Bearers</h3><p>White long sleeves and beige dresses</p><div className="mini-swatches light"><i /><i /><i /></div></article>
               </div>
             </section>
 
             <section className="popup-section popup-venue">
               <p className="popup-kicker">Where we’ll celebrate</p><h2>The <em>Venue</em></h2>
-              <div className="popup-venue-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 900px" alt="The Glass Garden wedding venue" /></div>
+              <div className="popup-venue-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 900px" alt="Garden wedding venue" /></div>
               <p>The ceremony will be held on Friday, December 18, 2026, at {invitation.ceremonyTime}. The reception will follow at {invitation.receptionTime}.</p>
               <div className="popup-venue-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address)}`} target="_blank" rel="noreferrer">View ceremony map <ArrowUpRight size={14} /></a><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.receptionVenue + ", " + invitation.location)}`} target="_blank" rel="noreferrer">View reception map <ArrowUpRight size={14} /></a></div>
             </section>
@@ -232,13 +297,14 @@ export default function InvitationExperience() {
             <section className="popup-section popup-gifts">
               <Image className="popup-flower popup-flower-bottom" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" />
               <p className="popup-kicker">With gratitude</p><h2>Gift <em>Registry</em></h2><p>We are truly blessed to have you with us as we celebrate our love. Your presence is more than enough, but if you wish to give a gift, a monetary contribution would greatly help as we build the foundation for our future together.</p>
-              <button className="visit-site-button" onClick={enterSite}>Visit site for more info <ArrowDown size={16} /></button>
+              <button className="visit-site-button" onClick={enterSite} disabled={transitioning}>Visit site for more info <ArrowDown size={16} /></button>
             </section>
           </article>
         </div>
       </div>
+      <div ref={transitionLayer} className="site-transition" aria-hidden="true"><div ref={transitionAnimation} className="site-transition-lottie" /></div>
       <main>
-        <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A glass garden wedding venue at golden hour" /></div><div className="hero-shade" />
+        <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A garden wedding venue at golden hour" /></div><div className="hero-shade" />
           <div className="hero-copy"><p className="eyebrow">Together with their families</p><h1 id="hero-title"><span>{invitation.bride}</span><i>&amp;</i><span>{invitation.groom}</span></h1><div className="hero-rule" /><p>{invitation.date} · {invitation.location}</p><a href="#welcome" className="explore">Enter our story <ArrowDown size={15} /></a></div>
         </section>
         <section id="welcome" className="welcome paper-section"><Image className="side-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="welcome-copy"><p className="eyebrow olive">A joyful beginning</p><h2>Welcome</h2><p>With joyful hearts, we invite you to celebrate our wedding as we begin our life together in love and faith.</p><span className="signature">{invitation.bride[0]} &amp; {invitation.groom[0]}</span></div><div data-reveal className="save-date-card"><small>Save the date</small><strong>18</strong><span>December · 2026</span></div></section>
@@ -250,10 +316,10 @@ export default function InvitationExperience() {
         <section className="story editorial-section"><div data-reveal className="story-image"><Image className="story-photo" src="/assets/photos/garden-walk.webp" fill sizes="(max-width: 800px) 90vw, 45vw" alt="A newlywed couple walking hand in hand through a garden" /></div><div data-reveal className="story-copy"><p className="eyebrow olive">Our story · 2019—forever</p><h2>All roads led<br/><em>to you.</em></h2><p>{invitation.story}</p><blockquote>“The best is yet to be.”</blockquote></div></section>
         <section className="countdown-section"><p className="eyebrow">Until we say “I do”</p><h2>{invitation.date}</h2><div className="countdown" aria-label="Countdown to the wedding">{Object.entries(countdown).map(([label, value]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div></section>
         <section className="events paper-section"><div data-reveal className="section-heading"><p className="eyebrow olive">Where &amp; when</p><h2>The Details</h2></div><div className="event-grid"><article data-reveal className="event-card"><span>01</span><h3>Ceremony</h3><p className="event-time">{invitation.ceremonyTime}</p><p>{invitation.venue}<br/>{invitation.location}</p><p className="description">An intimate garden ceremony beneath the palms.</p></article><article data-reveal className="event-card dark"><span>02</span><h3>Reception</h3><p className="event-time">{invitation.receptionTime}</p><p>{invitation.receptionVenue}<br/>{invitation.location}</p><p className="description">Dinner, dancing, and a night to remember.</p></article></div></section>
-        <section className="location editorial-section"><div data-reveal className="location-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 55vw" alt="The Glass Garden wedding venue" /></div><div data-reveal className="location-copy"><MapPin size={20}/><p className="eyebrow olive">Meet us there</p><h2>{invitation.venue}</h2><p>{invitation.address}</p><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address)}`} target="_blank" rel="noreferrer">Get directions <ArrowUpRight size={15}/></a></div></section>
+        <section className="location editorial-section"><div data-reveal className="location-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 55vw" alt="Garden wedding venue" /></div><div data-reveal className="location-copy"><MapPin size={20}/><p className="eyebrow olive">Meet us there</p><h2>{invitation.venue}</h2><p>{invitation.address}</p><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address)}`} target="_blank" rel="noreferrer">Get directions <ArrowUpRight size={15}/></a></div></section>
         <section className="dress paper-section"><div data-reveal><p className="eyebrow olive">Attire</p><h2>Garden Formal</h2><p>Dress in soft, earthy hues that feel at home beneath the palms.</p></div><div className="swatches" aria-label="Suggested color palette">{invitation.palette.map((color, i) => <span key={color} style={{ backgroundColor: color }} title={["Ivory","Champagne","Sage","Dusty rose","Muted brown"][i]} />)}</div></section>
         <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond by November 18, 2026.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit">Send response <ArrowUpRight size={15}/></button></form></>}</div></section>
-        <footer><span className="footer-monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><p>{invitation.date} · Manila</p><small>Made with love for a day to remember.</small></footer>
+        <footer><span className="footer-monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><p>{invitation.date} · Cabanatuan City</p><small>Made with love for a day to remember.</small></footer>
       </main>
       {/* Background music is controlled by the adjacent accessible button. */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
