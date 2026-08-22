@@ -25,6 +25,7 @@ h2 { font-family:var(--font-display),serif; font-weight:400; font-size:clamp(54p
 .monogram,.footer-monogram { font-family:var(--font-display),serif; font-size:70px; letter-spacing:-.12em; line-height:1; }
 .monogram span,.footer-monogram span { font-style:italic; font-size:.7em; margin:0 .05em; }
 .envelope-card small { margin-top:20px; letter-spacing:.18em; text-transform:uppercase; font-size:8px; }
+.envelope-card>strong { margin-top:13px; font:500 clamp(16px,2vw,25px) var(--font-display),serif; letter-spacing:.04em; }
 .envelope-front { z-index:3; clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%); background:#536437; }
 .fold { z-index:4; }
 .fold-left { clip-path:polygon(0 0,52% 55%,0 100%); background:#4b5b32; }
@@ -42,8 +43,8 @@ h2 { font-family:var(--font-display),serif; font-weight:400; font-size:clamp(54p
 .hero-image img { object-fit:cover; transform:scale(1.03); }
 .hero-shade { background:linear-gradient(180deg,rgba(12,19,8,.25),rgba(12,18,8,.48)); }
 .hero-copy { position:relative; z-index:2; width:min(1000px,90vw); text-align:center; }
-.hero-copy h1 { display:flex; align-items:center; justify-content:center; gap:clamp(15px,3vw,44px); margin:10px 0 24px; font-family:var(--font-display),serif; font-size:clamp(58px,10vw,145px); line-height:.72; font-weight:400; letter-spacing:-.055em; }
-.hero-copy h1 span { display:block; }
+.hero-copy h1 { display:flex; align-items:center; justify-content:center; gap:clamp(12px,2vw,30px); margin:10px 0 24px; font-family:var(--font-display),serif; font-size:clamp(50px,6.2vw,88px); line-height:.78; font-weight:400; letter-spacing:-.05em; }
+.hero-copy h1 span { display:block; white-space:nowrap; }
 .hero-copy h1 i { font-size:.7em; font-weight:400; }
 .hero-copy>p:last-of-type { font-family:var(--font-display),serif; font-size:clamp(15px,1.5vw,20px); letter-spacing:.06em; }
 .hero-rule { width:72px; height:1px; background:#fff8; margin:30px auto; }
@@ -151,7 +152,7 @@ footer small { font:italic 18px var(--font-display),serif; }
   .intro-flower-right { right:-5vw; bottom:14%; }
   .wax-seal { width:46px; height:46px; }
   .open-hint { bottom:14vh; }
-  .hero-copy h1 { flex-direction:column; gap:2px; font-size:clamp(62px,20vw,100px); }
+  .hero-copy h1 { flex-direction:column; gap:5px; font-size:clamp(46px,12.5vw,64px); line-height:.82; }
   .hero-copy h1 i { line-height:.55; }
   .hero-copy>p:last-of-type { max-width:270px; margin-inline:auto; }
   .explore { top:calc(50vh + 90px); }

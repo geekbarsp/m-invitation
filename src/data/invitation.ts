@@ -1,7 +1,7 @@
 export const invitation = {
-  bride: "Sophia",
-  groom: "Alexander",
-  initials: "S · A",
+  bride: "Mayumi Vergera",
+  groom: "Mardy Morales",
+  initials: "M · M",
   date: "December 18, 2026",
   dateISO: "2026-12-18T15:00:00+08:00",
   ceremonyTime: "3:00 PM",
