@@ -121,8 +121,11 @@ h2 { font-family:var(--font-display),serif; font-weight:400; font-size:clamp(54p
 .popup-welcome p:not(.popup-script-title) { max-width:430px; font:400 clamp(18px,2vw,25px)/1.55 var(--font-display),serif; }
 .popup-welcome strong { display:block; margin-top:28px; color:var(--olive); font:600 12px var(--font-sans),sans-serif; letter-spacing:.2em; text-transform:uppercase; }
 .popup-music-box { width:min(310px,100%); display:grid; grid-template-columns:56px 1fr; gap:9px 13px; align-items:center; margin-top:28px; padding:10px; border:1px solid #7f895c; border-radius:5px; color:#f6f1e4; background:#69773e; box-shadow:0 9px 20px rgba(45,54,28,.17); }
-.popup-album-mark { grid-row:1/3; display:grid; place-items:center; width:56px; height:56px; border-radius:3px; color:#4e5836; background:#f6f1e7; font:italic 19px var(--font-display),serif; }
-.popup-album-mark em { font-size:.7em; }
+.popup-album-mark { grid-row:1/3; position:relative; display:grid; place-items:center; width:56px; height:56px; overflow:hidden; border:2px solid #f6f1e7; border-radius:50%; background:#202019; box-shadow:0 2px 8px rgba(30,35,18,.32); }
+.popup-album-mark img { width:100%; height:100%; object-fit:cover; animation:album-spin 8s linear infinite; animation-play-state:paused; }
+.popup-album-mark.is-playing img { animation-play-state:running; }
+@keyframes album-spin { from { transform:rotate(0deg) scale(1.42); } to { transform:rotate(360deg) scale(1.42); } }
+@media (prefers-reduced-motion:reduce) { .popup-album-mark img { animation:none; transform:scale(1.42); } }
 .popup-track { min-width:0; display:flex; flex-direction:column; }
 .popup-track small { font-size:6px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
 .popup-track strong { overflow:hidden; margin:2px 0 1px; color:#fff; font:500 13px var(--font-display),serif; letter-spacing:.02em; text-overflow:ellipsis; white-space:nowrap; }

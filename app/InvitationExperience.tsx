@@ -184,7 +184,9 @@ export default function InvitationExperience() {
                 <p>With joyful hearts, we welcome you to celebrate our wedding as we begin our life together in love and faith. Your presence is a blessing on our special day.</p>
                 <strong>{invitation.bride} &amp; {invitation.groom}</strong>
                 <div className="popup-music-box">
-                  <span className="popup-album-mark">M<em>&amp;</em>M</span>
+                  <span className={`popup-album-mark ${music ? "is-playing" : ""}`}>
+                    <Image src="/musicicon.webp" width={56} height={56} alt="A Thousand Years album artwork" />
+                  </span>
                   <div className="popup-track"><small>Our song</small><strong>A Thousand Years</strong><i>Christina Perri</i></div>
                   <div className="popup-player-controls">
                     <button onClick={() => seekMusic(-10)} aria-label="Rewind ten seconds"><SkipBack size={14} /></button>
