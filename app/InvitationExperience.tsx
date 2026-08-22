@@ -11,6 +11,12 @@ import { invitation } from "../src/data/invitation";
 
 type Countdown = { days: string; hours: string; minutes: string; seconds: string };
 const emptyCountdown: Countdown = { days: "—", hours: "—", minutes: "—", seconds: "—" };
+const invitePetals = Array.from({ length: 24 }, (_, index) => ({
+  id: index,
+  left: (index * 37 + 11) % 101,
+  delay: -((index * 0.43) % 7.2),
+  duration: 6.4 + (index % 7) * 0.48,
+}));
 
 export default function InvitationExperience() {
   const root = useRef<HTMLDivElement>(null);
@@ -31,6 +37,7 @@ export default function InvitationExperience() {
   const lenisRef = useRef<Lenis | null>(null);
   const [opened, setOpened] = useState(false);
   const [music, setMusic] = useState(false);
+  const [showInvitePetals, setShowInvitePetals] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
   const [submitted, setSubmitted] = useState(false);
@@ -116,7 +123,7 @@ export default function InvitationExperience() {
   const openInvitation = () => {
     if (opened) return;
     setOpened(true);
-    if (audio.current) void audio.current.play().then(() => setMusic(true)).catch(() => setMusic(false));
+    if (audio.current) void audio.current.play().then(() => { setMusic(true); setShowInvitePetals(true); }).catch(() => { setMusic(false); setShowInvitePetals(false); });
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set([envelope.current, stationery.current, introDetails.current], { autoAlpha: 0 });
       gsap.set(detailsPopup.current, { autoAlpha: 1, pointerEvents: "auto" });
@@ -149,6 +156,7 @@ export default function InvitationExperience() {
   const enterSite = () => {
     if (transitioning) return;
     setTransitioning(true);
+    setShowInvitePetals(false);
     const layer = transitionLayer.current;
     const paperStage = paperPlaneContainer.current;
     const loveStage = loveTransitionContainer.current;
@@ -202,8 +210,11 @@ export default function InvitationExperience() {
 
   const toggleMusic = () => {
     if (!audio.current) return;
-    if (audio.current.paused) void audio.current.play().then(() => setMusic(true)).catch(() => setMusic(false));
-    else { audio.current.pause(); setMusic(false); }
+    if (audio.current.paused) void audio.current.play().then(() => {
+      setMusic(true);
+      if (document.documentElement.classList.contains("invitation-locked")) setShowInvitePetals(true);
+    }).catch(() => { setMusic(false); setShowInvitePetals(false); });
+    else { audio.current.pause(); setMusic(false); setShowInvitePetals(false); }
   };
 
   const seekMusic = (seconds: number) => {
@@ -222,6 +233,9 @@ export default function InvitationExperience() {
     <div ref={root} className={`site-shell ${opened ? "is-open" : ""}`}>
       <div className="grain" aria-hidden="true" />
       <div ref={intro} className="invitation-intro">
+        {showInvitePetals && <div className="invite-petal-rain" aria-hidden="true">
+          {invitePetals.map((petal) => <span key={petal.id} style={{ left: `${petal.left}%`, animationDelay: `${petal.delay}s`, animationDuration: `${petal.duration}s` }} />)}
+        </div>}
         <div className="intro-frame" aria-hidden="true"><span /><span /><span /><span /></div>
         <div className="intro-heading"><span>A celebration of love</span><p className="intro-eyebrow">You’re invited</p><small>Mayumi &amp; Mardy · 18.12.26</small></div>
         <div className="envelope-breathe">

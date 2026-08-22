@@ -24,6 +24,21 @@ h2 { font-family:var(--font-display),serif; font-weight:400; font-size:clamp(54p
 
 .invitation-intro { position:fixed; inset:0; z-index:150; display:grid; place-items:center; overflow:hidden; background:radial-gradient(ellipse at 50% 43%,#fffdf8 0,#f3efe6 47%,#e6e0d4 100%); perspective:1400px; isolation:isolate; }
 .invitation-intro:before { content:""; position:absolute; inset:0; z-index:-1; opacity:.32; background-image:linear-gradient(115deg,transparent 46%,rgba(95,84,61,.055) 49%,transparent 52%),repeating-linear-gradient(0deg,rgba(72,64,47,.035) 0 1px,transparent 1px 5px); mix-blend-mode:multiply; }
+.invite-petal-rain { position:absolute; inset:0; z-index:60; overflow:hidden; pointer-events:none; contain:strict; }
+.invite-petal-rain span { position:absolute; top:-12vh; width:clamp(18px,1.9vw,32px); aspect-ratio:1.11; opacity:.9; transform-origin:60% 85%; animation-name:invite-petal-fall; animation-timing-function:linear; animation-iteration-count:infinite; will-change:transform; }
+.invite-petal-rain span:before { content:""; position:absolute; inset:0; background:url("/assets/petals/rose-petal.png") center/contain no-repeat; }
+.invite-petal-rain span:nth-child(3n) { width:clamp(13px,1.35vw,23px); opacity:.7; }
+.invite-petal-rain span:nth-child(4n) { width:clamp(24px,2.45vw,40px); opacity:.84; }
+.invite-petal-rain span:nth-child(even) { transform-origin:35% 70%; }
+.invite-petal-rain span:nth-child(even):before { transform:scaleX(-1) rotate(12deg); }
+.invite-petal-rain span:nth-child(5n):before { transform:rotate(-24deg) scale(.9); }
+@keyframes invite-petal-fall {
+  0% { transform:translate3d(-3vw,-16vh,0) rotate(0deg) rotateY(0deg); }
+  22% { transform:translate3d(4vw,12vh,0) rotate(105deg) rotateY(75deg); }
+  48% { transform:translate3d(-5vw,48vh,0) rotate(235deg) rotateY(155deg); }
+  74% { transform:translate3d(5vw,78vh,0) rotate(355deg) rotateY(240deg); }
+  100% { transform:translate3d(-2vw,116vh,0) rotate(520deg) rotateY(360deg); }
+}
 .intro-frame { position:absolute; inset:clamp(18px,3vw,42px); border:1px solid rgba(137,115,76,.32); pointer-events:none; }
 .intro-frame:before,.intro-frame:after { content:""; position:absolute; background:#9b8256; opacity:.65; }
 .intro-frame:before { left:50%; top:-1px; width:82px; height:1px; transform:translateX(-50%); }
