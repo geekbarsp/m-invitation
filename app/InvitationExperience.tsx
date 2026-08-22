@@ -73,8 +73,9 @@ export default function InvitationExperience() {
       .to(flap.current, compact
         ? { scaleY: -1, duration: 0.78, ease: "power2.inOut" }
         : { rotateX: -176, duration: 0.95, ease: "power2.inOut" }, 0.18)
+      .set(innerCard.current, { autoAlpha: 1, zIndex: 1, z: 0, force3D: false }, 0.18)
       .set(flap.current, { zIndex: 0 })
-      .set(innerCard.current, { autoAlpha: 1, zIndex: 10, z: compact ? 0 : 36, force3D: !compact })
+      .set(innerCard.current, { zIndex: 10, z: compact ? 0 : 36, force3D: !compact })
       .to(innerCard.current, { yPercent: compact ? -70 : -76, scale: compact ? 0.96 : 1.04, duration: 1.15 }, "-=.05")
       .to(envelope.current, { y: 58, scale: 0.96, duration: 0.75 }, "-=.35")
       .to(envelope.current, { xPercent: 0, y: compact ? -118 : -82, scale: compact ? 0.7 : 0.72, duration: 1.05, ease: "power3.inOut" }, "+=2")
