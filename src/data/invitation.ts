@@ -1,0 +1,15 @@
+export const invitation = {
+  bride: "Sophia",
+  groom: "Alexander",
+  initials: "S · A",
+  date: "December 18, 2026",
+  dateISO: "2026-12-18T15:00:00+08:00",
+  ceremonyTime: "3:00 PM",
+  receptionTime: "6:00 PM",
+  venue: "The Glass Garden",
+  receptionVenue: "The Conservatory Hall",
+  location: "Pasig City, Metro Manila",
+  address: "257 Evangelista Avenue, Pasig, Metro Manila",
+  story: "From a quiet hello to a lifetime of choosing one another, ours has always felt like coming home.",
+  palette: ["#f3efe5", "#d8c6a2", "#a8ad91", "#b78e82", "#6f5b49"],
+} as const;
