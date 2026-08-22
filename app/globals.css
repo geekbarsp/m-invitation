@@ -212,6 +212,7 @@ footer small { font:italic 18px var(--font-display),serif; }
 @media (max-width:800px) {
   .intro-eyebrow { top:15vh; font-size:18px; }
   .envelope-breathe { width:82vw; }
+  .envelope { perspective:1400px; transform-style:flat; }
   .envelope-card { padding:22px; }
   .envelope-card>strong { font-size:15px; white-space:nowrap; }
   .envelope-card>i { font-size:9px; }
