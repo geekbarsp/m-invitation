@@ -24,8 +24,10 @@ export default function InvitationExperience() {
   const detailsPopup = useRef<HTMLDivElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
   const transitionLayer = useRef<HTMLDivElement>(null);
-  const transitionAnimation = useRef<HTMLDivElement>(null);
-  const lottieAnimation = useRef<AnimationItem | null>(null);
+  const paperPlaneContainer = useRef<HTMLDivElement>(null);
+  const loveTransitionContainer = useRef<HTMLDivElement>(null);
+  const paperPlaneLottie = useRef<AnimationItem | null>(null);
+  const loveTransitionLottie = useRef<AnimationItem | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const [opened, setOpened] = useState(false);
   const [music, setMusic] = useState(false);
@@ -65,27 +67,38 @@ export default function InvitationExperience() {
   useEffect(() => {
     let disposed = false;
     const loadTransition = async () => {
-      const [{ default: lottie }, response] = await Promise.all([
+      const [{ default: lottie }, paperResponse, loveResponse] = await Promise.all([
         import("lottie-web"),
+        fetch("/animations/paper-plane-heart.json"),
         fetch("/animations/fullscreen-love-transition.json"),
       ]);
-      if (!response.ok) throw new Error("Unable to load the site transition animation.");
-      const animationData = await response.json();
-      if (disposed || !transitionAnimation.current) return;
-      lottieAnimation.current = lottie.loadAnimation({
-        container: transitionAnimation.current,
+      if (!paperResponse.ok || !loveResponse.ok) throw new Error("Unable to load the site transition animations.");
+      const [paperData, loveData] = await Promise.all([paperResponse.json(), loveResponse.json()]);
+      if (disposed || !paperPlaneContainer.current || !loveTransitionContainer.current) return;
+      paperPlaneLottie.current = lottie.loadAnimation({
+        container: paperPlaneContainer.current,
         renderer: "svg",
         loop: false,
         autoplay: false,
-        animationData,
+        animationData: paperData,
+        rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
+      });
+      loveTransitionLottie.current = lottie.loadAnimation({
+        container: loveTransitionContainer.current,
+        renderer: "svg",
+        loop: false,
+        autoplay: false,
+        animationData: loveData,
         rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
       });
     };
-    void loadTransition().catch(() => { lottieAnimation.current = null; });
+    void loadTransition().catch(() => { paperPlaneLottie.current = null; loveTransitionLottie.current = null; });
     return () => {
       disposed = true;
-      lottieAnimation.current?.destroy();
-      lottieAnimation.current = null;
+      paperPlaneLottie.current?.destroy();
+      loveTransitionLottie.current?.destroy();
+      paperPlaneLottie.current = null;
+      loveTransitionLottie.current = null;
     };
   }, []);
 
@@ -137,7 +150,10 @@ export default function InvitationExperience() {
     if (transitioning) return;
     setTransitioning(true);
     const layer = transitionLayer.current;
-    const animation = lottieAnimation.current;
+    const paperStage = paperPlaneContainer.current;
+    const loveStage = loveTransitionContainer.current;
+    const paperAnimation = paperPlaneLottie.current;
+    const loveAnimation = loveTransitionLottie.current;
 
     const revealSite = () => {
       document.documentElement.classList.remove("invitation-locked");
@@ -151,19 +167,37 @@ export default function InvitationExperience() {
 
     if (!layer) { revealSite(); return; }
     gsap.set(layer, { autoAlpha: 1, pointerEvents: "auto", clipPath: "none", backgroundColor: "transparent" });
+    gsap.set([paperStage, loveStage], { autoAlpha: 0 });
 
-    if (!animation || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const playFallback = () => {
       gsap.fromTo(layer, { clipPath: "circle(0% at 50% 50%)", backgroundColor: "#66733f" }, { clipPath: "circle(150% at 50% 50%)", duration: 0.72, ease: "power3.inOut", onComplete: revealSite });
-      return;
-    }
-
-    const onComplete = () => {
-      animation.removeEventListener("complete", onComplete);
-      revealSite();
     };
-    animation.addEventListener("complete", onComplete);
-    animation.goToAndStop(0, true);
-    animation.play();
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { playFallback(); return; }
+
+    const playLoveTransition = () => {
+      gsap.set(paperStage, { autoAlpha: 0 });
+      if (!loveAnimation || !loveStage) { playFallback(); return; }
+      gsap.set(layer, { backgroundColor: "#f7f3ea" });
+      gsap.set(loveStage, { autoAlpha: 1 });
+      const onLoveComplete = () => {
+        loveAnimation.removeEventListener("complete", onLoveComplete);
+        revealSite();
+      };
+      loveAnimation.addEventListener("complete", onLoveComplete);
+      loveAnimation.goToAndStop(0, true);
+      loveAnimation.play();
+    };
+
+    if (!paperAnimation || !paperStage) { playLoveTransition(); return; }
+    gsap.set(paperStage, { autoAlpha: 1 });
+    const onPaperComplete = () => {
+      paperAnimation.removeEventListener("complete", onPaperComplete);
+      playLoveTransition();
+    };
+    paperAnimation.addEventListener("complete", onPaperComplete);
+    paperAnimation.goToAndStop(0, true);
+    paperAnimation.play();
   };
 
   const toggleMusic = () => {
@@ -302,7 +336,10 @@ export default function InvitationExperience() {
           </article>
         </div>
       </div>
-      <div ref={transitionLayer} className="site-transition" aria-hidden="true"><div ref={transitionAnimation} className="site-transition-lottie" /></div>
+      <div ref={transitionLayer} className="site-transition" aria-hidden="true">
+        <div ref={paperPlaneContainer} className="site-transition-stage site-transition-paper" />
+        <div ref={loveTransitionContainer} className="site-transition-stage site-transition-love" />
+      </div>
       <main>
         <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A garden wedding venue at golden hour" /></div><div className="hero-shade" />
           <div className="hero-copy"><p className="eyebrow">Together with their families</p><h1 id="hero-title"><span>{invitation.bride}</span><i>&amp;</i><span>{invitation.groom}</span></h1><div className="hero-rule" /><p>{invitation.date} · {invitation.location}</p><a href="#welcome" className="explore">Enter our story <ArrowDown size={15} /></a></div>

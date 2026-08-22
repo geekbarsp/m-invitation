@@ -4,6 +4,7 @@
 * { box-sizing:border-box; }
 html { scroll-behavior:auto; background:var(--ivory); }
 html.invitation-locked,html.invitation-locked body { overflow:hidden!important; }
+html.invitation-locked main { visibility:hidden; }
 body { margin:0; background:var(--ivory); color:var(--ink); font-family:var(--font-sans),sans-serif; overflow-x:hidden; }
 button,input,select,textarea { font:inherit; }
 button,a { -webkit-tap-highlight-color:transparent; }
@@ -11,9 +12,11 @@ a { color:inherit; }
 ::selection { background:#77805b; color:white; }
 .site-shell { overflow:clip; background:var(--ivory); }
 .grain { position:fixed; inset:0; z-index:200; opacity:.055; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.48'/%3E%3C/svg%3E"); }
-.site-transition { visibility:hidden; position:fixed; inset:0; z-index:300; overflow:hidden; opacity:0; pointer-events:none; }
-.site-transition-lottie,.site-transition-lottie svg { width:100%; height:100%; }
-.site-transition-lottie svg { display:block; }
+.site-transition { visibility:hidden; position:fixed; inset:0; z-index:300; overflow:hidden; opacity:0; pointer-events:none; background:transparent; }
+.site-transition-stage { visibility:hidden; position:absolute; inset:0; opacity:0; }
+.site-transition-paper { background:transparent; }
+.site-transition-stage,.site-transition-stage svg { width:100%; height:100%; }
+.site-transition-stage svg { display:block; }
 .eyebrow { margin:0 0 18px; font-size:10px; letter-spacing:.26em; text-transform:uppercase; font-weight:700; }
 .olive { color:var(--olive); }
 h1,h2,h3,p { margin-top:0; }
