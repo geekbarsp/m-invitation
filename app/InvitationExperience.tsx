@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowDown, ArrowUpRight, Check, MapPin, Music2, VolumeX } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Check, MapPin, Music2, Pause, Play, Repeat2, SkipBack, SkipForward, VolumeX } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -20,6 +20,9 @@ export default function InvitationExperience() {
   const innerCard = useRef<HTMLDivElement>(null);
   const stationery = useRef<HTMLDivElement>(null);
   const introDetails = useRef<HTMLDivElement>(null);
+  const detailsPopup = useRef<HTMLDivElement>(null);
+  const audio = useRef<HTMLAudioElement>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const [opened, setOpened] = useState(false);
   const [music, setMusic] = useState(false);
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
@@ -29,7 +32,10 @@ export default function InvitationExperience() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const lenis = new Lenis({ duration: reduced ? 0 : 1.05, smoothWheel: !reduced });
+    document.documentElement.classList.add("invitation-locked");
+    const lenis = new Lenis({ duration: reduced ? 0 : 1.05, smoothWheel: !reduced, prevent: (node) => Boolean(node.closest(".details-popup")) });
+    lenisRef.current = lenis;
+    lenis.stop();
     const update = (time: number) => lenis.raf(time * 1000);
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add(update);
@@ -48,7 +54,7 @@ export default function InvitationExperience() {
         gsap.to(".story-photo", { yPercent: -8, ease: "none", scrollTrigger: { trigger: ".story", start: "top bottom", end: "bottom top", scrub: 1 } });
       }
     }, root);
-    return () => { ctx.revert(); ScrollTrigger.getAll().forEach((t) => t.kill()); gsap.ticker.remove(update); lenis.destroy(); };
+    return () => { document.documentElement.classList.remove("invitation-locked"); ctx.revert(); ScrollTrigger.getAll().forEach((t) => t.kill()); gsap.ticker.remove(update); lenis.destroy(); lenisRef.current = null; };
   }, []);
 
   useEffect(() => {
@@ -65,7 +71,12 @@ export default function InvitationExperience() {
   const openInvitation = () => {
     if (opened) return;
     setOpened(true);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return void gsap.set(intro.current, { autoAlpha: 0, pointerEvents: "none" });
+    if (audio.current) void audio.current.play().then(() => setMusic(true)).catch(() => setMusic(false));
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set([envelope.current, stationery.current, introDetails.current], { autoAlpha: 0 });
+      gsap.set(detailsPopup.current, { autoAlpha: 1, pointerEvents: "auto" });
+      return;
+    }
     const compact = window.matchMedia("(max-width: 800px)").matches;
     gsap.timeline({ defaults: { ease: "power3.out" } })
       .to(".intro-heading, .open-hint", { opacity: 0, duration: 0.3 }, 0)
@@ -85,8 +96,30 @@ export default function InvitationExperience() {
       .fromTo(".stationery-piece", { y: 24, opacity: 0, rotate: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.65 }, "-=.72")
       .fromTo(".stationery-copy", { y: 8, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.07, duration: 0.55 }, "-=.48")
       .fromTo(introDetails.current, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.85 }, "-=.45")
-      .to(intro.current, { yPercent: -104, opacity: 0, duration: 1.15, delay: 5, pointerEvents: "none" })
-      .fromTo(".hero-copy > *", { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.9 }, "-=.65");
+      .to([stationery.current, introDetails.current], { autoAlpha: 0, y: -24, duration: 0.65 }, "+=3")
+      .set(detailsPopup.current, { autoAlpha: 1, pointerEvents: "auto" })
+      .fromTo(".details-paper-shell", { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 });
+  };
+
+  const enterSite = () => {
+    document.documentElement.classList.remove("invitation-locked");
+    window.scrollTo({ top: 0, behavior: "auto" });
+    lenisRef.current?.start();
+    window.requestAnimationFrame(() => lenisRef.current?.resize());
+    gsap.timeline({ defaults: { ease: "power3.inOut" } })
+      .to(intro.current, { yPercent: -104, opacity: 0, duration: 1.05, pointerEvents: "none" })
+      .fromTo(".hero-copy > *", { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.12, duration: 0.9 }, "-=.55");
+  };
+
+  const toggleMusic = () => {
+    if (!audio.current) return;
+    if (audio.current.paused) void audio.current.play().then(() => setMusic(true)).catch(() => setMusic(false));
+    else { audio.current.pause(); setMusic(false); }
+  };
+
+  const seekMusic = (seconds: number) => {
+    if (!audio.current) return;
+    audio.current.currentTime = Math.max(0, Math.min(audio.current.duration || Infinity, audio.current.currentTime + seconds));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -99,7 +132,7 @@ export default function InvitationExperience() {
   return (
     <div ref={root} className={`site-shell ${opened ? "is-open" : ""}`}>
       <div className="grain" aria-hidden="true" />
-      <div ref={intro} className="invitation-intro" aria-hidden={opened}>
+      <div ref={intro} className="invitation-intro">
         <div className="intro-frame" aria-hidden="true"><span /><span /><span /><span /></div>
         <div className="intro-heading"><span>A celebration of love</span><p className="intro-eyebrow">You’re invited</p><small>Mayumi &amp; Mardy · 18.12.26</small></div>
         <div className="envelope-breathe">
@@ -143,6 +176,64 @@ export default function InvitationExperience() {
           <small>{invitation.date}</small>
         </div>
         <button className="open-hint" onClick={openInvitation}>Click to open <ArrowDown size={14} /></button>
+        <div ref={detailsPopup} className="details-popup" role="dialog" aria-modal="true" aria-label="Scrollable wedding invitation details" data-lenis-prevent data-lenis-prevent-wheel data-lenis-prevent-touch>
+          <article className="details-paper-shell">
+            <section className="popup-welcome">
+              <div>
+                <p className="popup-script-title">Welcome</p>
+                <p>With joyful hearts, we welcome you to celebrate our wedding as we begin our life together in love and faith. Your presence is a blessing on our special day.</p>
+                <strong>{invitation.bride} &amp; {invitation.groom}</strong>
+                <div className="popup-music-box">
+                  <span className="popup-album-mark">M<em>&amp;</em>M</span>
+                  <div className="popup-track"><small>Our song</small><strong>A Thousand Years</strong><i>Christina Perri</i></div>
+                  <div className="popup-player-controls">
+                    <button onClick={() => seekMusic(-10)} aria-label="Rewind ten seconds"><SkipBack size={14} /></button>
+                    <button className="popup-play" onClick={toggleMusic} aria-label={music ? "Pause music" : "Play music"}>{music ? <Pause size={15} /> : <Play size={15} />}</button>
+                    <button onClick={() => seekMusic(10)} aria-label="Forward ten seconds"><SkipForward size={14} /></button>
+                    <span title="Music repeats"><Repeat2 size={13} /></span>
+                  </div>
+                </div>
+              </div>
+              <div className="popup-envelope-asset"><Image className="popup-envelope-image" src="/assets/stationery-clean-v2.png" width={1025} height={1535} sizes="(max-width: 800px) 55vw, 460px" alt="Ivory and olive wedding stationery with flowers" priority /></div>
+            </section>
+
+            <section className="popup-save-date">
+              <div className="popup-save-lockup"><span>Save</span><small>the</small><span>Date</span><b>{invitation.bride[0]} &amp; {invitation.groom[0]}</b><i>{invitation.date}</i></div>
+              <div className="popup-countdown-wrap"><p>Day left before we say <em>“I do”</em></p><div className="popup-countdown">{Object.entries(countdown).map(([label, value]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div><small>{invitation.ceremonyTime} · {invitation.venue}<br />{invitation.location}</small></div>
+            </section>
+
+            <section className="popup-section popup-entourage">
+              <p className="popup-kicker">Together with our families</p><h2>The <em>Entourage</em></h2>
+              <div className="entourage-family"><p><b>Parents of the Bride</b>The Vergera Family</p><p><b>Parents of the Groom</b>The Morales Family</p></div>
+              <h3>Principal Sponsors</h3><p className="entourage-note">Our cherished Ninongs and Ninangs who will guide us in love, faith, and marriage.</p>
+              <h3>Secondary Sponsors</h3><div className="sponsor-grid"><p><b>Candle</b>To light our path</p><p><b>Cord</b>To bind us together</p><p><b>Veil</b>To clothe us in unity</p></div>
+              <div className="wedding-party"><p><b>Best Man</b>With the groom</p><p><b>Maid of Honor</b>With the bride</p><p><b>Groomsmen</b>Family &amp; friends</p><p><b>Bridesmaids</b>Family &amp; friends</p></div>
+            </section>
+
+            <section className="popup-section popup-attire">
+              <p className="popup-kicker">Celebrate in style</p><h2>Attire <em>Guide</em></h2>
+              <div className="attire-grid">
+                <article><div className="attire-figure formal" aria-hidden="true"><span /><span /></div><h3>Principal Sponsors</h3><p>Black suit · Khaki brown gown</p><div className="mini-swatches"><i /><i /><i /></div></article>
+                <article><div className="attire-figure guests" aria-hidden="true"><span /><span /><span /></div><h3>Guests</h3><p>Garden formal in beige and earth tones</p><div className="mini-swatches beige"><i /><i /><i /></div></article>
+                <article><div className="attire-figure party" aria-hidden="true"><span /><span /><span /></div><h3>Wedding Party</h3><p>Black suits · Olive green gowns</p><div className="mini-swatches olive"><i /><i /><i /></div></article>
+                <article><div className="attire-figure children" aria-hidden="true"><span /><span /><span /></div><h3>Little Ones</h3><p>White long sleeves and beige dresses</p><div className="mini-swatches light"><i /><i /><i /></div></article>
+              </div>
+            </section>
+
+            <section className="popup-section popup-venue">
+              <p className="popup-kicker">Where we’ll celebrate</p><h2>The <em>Venue</em></h2>
+              <div className="popup-venue-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 900px" alt="The Glass Garden wedding venue" /></div>
+              <p>The ceremony will be held on Friday, December 18, 2026, at {invitation.ceremonyTime}. The reception will follow at {invitation.receptionTime}.</p>
+              <div className="popup-venue-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address)}`} target="_blank" rel="noreferrer">View ceremony map <ArrowUpRight size={14} /></a><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.receptionVenue + ", " + invitation.location)}`} target="_blank" rel="noreferrer">View reception map <ArrowUpRight size={14} /></a></div>
+            </section>
+
+            <section className="popup-section popup-gifts">
+              <Image className="popup-flower popup-flower-bottom" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" />
+              <p className="popup-kicker">With gratitude</p><h2>Gift <em>Registry</em></h2><p>We are truly blessed to have you with us as we celebrate our love. Your presence is more than enough, but if you wish to give a gift, a monetary contribution would greatly help as we build the foundation for our future together.</p>
+              <button className="visit-site-button" onClick={enterSite}>Visit site for more info <ArrowDown size={16} /></button>
+            </section>
+          </article>
+        </div>
       </div>
       <main>
         <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A glass garden wedding venue at golden hour" /></div><div className="hero-shade" />
@@ -162,7 +253,10 @@ export default function InvitationExperience() {
         <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond by November 18, 2026.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit">Send response <ArrowUpRight size={15}/></button></form></>}</div></section>
         <footer><span className="footer-monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><p>{invitation.date} · Manila</p><small>Made with love for a day to remember.</small></footer>
       </main>
-      <button className="music-control" onClick={() => setMusic(!music)} aria-label={music ? "Turn music off" : "Turn music on"}>{music ? <Music2 size={16}/> : <VolumeX size={16}/>}<span>{music ? "On" : "Music"}</span></button>
+      {/* Background music is controlled by the adjacent accessible button. */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <audio ref={audio} src="/wedbgm.mp3" loop preload="auto" />
+      <button className="music-control" onClick={toggleMusic} aria-label={music ? "Turn music off" : "Turn music on"}>{music ? <Music2 size={16}/> : <VolumeX size={16}/>}<span>{music ? "On" : "Music"}</span></button>
     </div>
   );
 }
