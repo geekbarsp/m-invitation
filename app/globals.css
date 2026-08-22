@@ -36,6 +36,10 @@ h2 { font-family:var(--font-display),serif; font-weight:400; font-size:clamp(54p
   0%,100% { transform:translateY(0) scale(1); filter:drop-shadow(0 18px 20px rgba(35,39,26,.12)); }
   50% { transform:translateY(-7px) scale(1.018); filter:drop-shadow(0 30px 28px rgba(35,39,26,.2)); }
 }
+@keyframes envelope-breathe-mobile {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-6px); }
+}
 .envelope { --boucle-texture:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.38' numOctaves='4' seed='11'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='gamma' amplitude='1.2' exponent='1.8' offset='-.08'/%3E%3CfeFuncG type='gamma' amplitude='1.2' exponent='1.8' offset='-.08'/%3E%3CfeFuncB type='gamma' amplitude='1.2' exponent='1.8' offset='-.08'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)' opacity='.72'/%3E%3C/svg%3E"); position:relative; z-index:3; width:100%; height:100%; border:0; padding:0; background:none; cursor:pointer; transform-style:preserve-3d; transition:filter .45s ease,transform .45s cubic-bezier(.2,.8,.2,1); }
 .envelope:focus-visible,.open-hint:focus-visible,.music-control:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid #9c7448; outline-offset:4px; }
 .envelope-back,.envelope-front,.envelope-flap,.fold { position:absolute; inset:0; }
@@ -213,9 +217,10 @@ footer small { font:italic 18px var(--font-display),serif; }
 
 @media (max-width:800px) {
   .intro-eyebrow { top:15vh; font-size:18px; }
-  .envelope-breathe { width:82vw; }
+  .envelope-breathe { width:82vw; animation-name:envelope-breathe-mobile; filter:none; }
   .envelope { perspective:none; transform-style:flat; }
   .envelope-flap { backface-visibility:hidden; transform-style:flat; }
+  .envelope-front,.fold,.envelope-border { backface-visibility:visible; transform:none; }
   .envelope-card { padding:22px; }
   .envelope-card>strong { font-size:15px; white-space:nowrap; }
   .envelope-card>i { font-size:9px; }
