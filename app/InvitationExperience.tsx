@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { AnimationItem } from "lottie-web";
-import { ArrowDown, ArrowUpRight, Check, MapPin, Music2, Pause, Play, Repeat2, SkipBack, SkipForward, VolumeX } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Check, Heart, MapPin, Music2, Pause, Play, Repeat2, SkipBack, SkipForward, VolumeX } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -16,6 +16,12 @@ const invitePetals = Array.from({ length: 24 }, (_, index) => ({
   left: (index * 37 + 11) % 101,
   delay: -((index * 0.43) % 7.2),
   duration: 6.4 + (index % 7) * 0.48,
+}));
+const ambientPetals = Array.from({ length: 12 }, (_, index) => ({
+  id: index,
+  left: (index * 47 + 7) % 100,
+  delay: -((index * 1.13) % 12),
+  duration: 11 + (index % 5) * 1.8,
 }));
 
 export default function InvitationExperience() {
@@ -65,10 +71,20 @@ export default function InvitationExperience() {
           if (!index) return;
           gsap.fromTo(card, { yPercent: 110, rotate: index % 2 ? 2 : -2 }, { yPercent: 0, rotate: 0, ease: "none", scrollTrigger: { trigger: ".card-journey", start: `${index * 24}% top`, end: `${index * 24 + 34}% top`, scrub: 0.8 } });
         });
-        gsap.to(".story-photo", { yPercent: -8, ease: "none", scrollTrigger: { trigger: ".story", start: "top bottom", end: "bottom top", scrub: 1 } });
+        gsap.to(".story-photo", { yPercent: -8, scale: 1.035, ease: "none", scrollTrigger: { trigger: ".story", start: "top bottom", end: "bottom top", scrub: 1 } });
+        gsap.to(".hero-image img", { yPercent: 9, scale: 1.12, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 } });
+        gsap.to(".scroll-progress span", { scaleX: 1, ease: "none", scrollTrigger: { trigger: "main", start: "top top", end: "bottom bottom", scrub: 0.25 } });
+        gsap.utils.toArray<HTMLElement>(".glass-lift").forEach((card) => {
+          gsap.from(card, { y: 55, opacity: 0, filter: "blur(10px)", duration: 1.15, ease: "power3.out", scrollTrigger: { trigger: card, start: "top 88%" } });
+        });
       }
     }, root);
-    return () => { document.documentElement.classList.remove("invitation-locked"); ctx.revert(); ScrollTrigger.getAll().forEach((t) => t.kill()); gsap.ticker.remove(update); lenis.destroy(); lenisRef.current = null; };
+    const trackPointer = (event: PointerEvent) => {
+      document.documentElement.style.setProperty("--pointer-x", `${event.clientX}px`);
+      document.documentElement.style.setProperty("--pointer-y", `${event.clientY}px`);
+    };
+    window.addEventListener("pointermove", trackPointer, { passive: true });
+    return () => { document.documentElement.classList.remove("invitation-locked"); window.removeEventListener("pointermove", trackPointer); ctx.revert(); ScrollTrigger.getAll().forEach((t) => t.kill()); gsap.ticker.remove(update); lenis.destroy(); lenisRef.current = null; };
   }, []);
 
   useEffect(() => {
@@ -355,20 +371,45 @@ export default function InvitationExperience() {
         <div ref={loveTransitionContainer} className="site-transition-stage site-transition-love" />
       </div>
       <main>
-        <section className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A garden wedding venue at golden hour" /></div><div className="hero-shade" />
-          <div className="hero-copy"><p className="eyebrow">Together with their families</p><h1 id="hero-title"><span>{invitation.bride}</span><i>&amp;</i><span>{invitation.groom}</span></h1><div className="hero-rule" /><p>{invitation.date} · {invitation.location}</p><a href="#welcome" className="explore">Enter our story <ArrowDown size={15} /></a></div>
+        <div className="scroll-progress" aria-hidden="true"><span /></div>
+        <nav className="glass-nav" aria-label="Wedding invitation navigation">
+          <a className="nav-monogram" href="#top" aria-label="Back to the beginning">M<span>&amp;</span>M</a>
+          <span className="nav-date">18 · 12 · 26</span>
+          <a className="nav-rsvp" href="#rsvp">RSVP <ArrowUpRight size={13} /></a>
+        </nav>
+        <div className="ambient-petals" aria-hidden="true">
+          {ambientPetals.map((petal) => <i key={petal.id} style={{ left: `${petal.left}%`, animationDelay: `${petal.delay}s`, animationDuration: `${petal.duration}s` }} />)}
+        </div>
+        <section id="top" className="hero" aria-labelledby="hero-title"><div className="hero-image"><Image src="/assets/photos/glass-garden.webp" fill sizes="100vw" loading="eager" alt="A garden wedding venue at golden hour" /></div><div className="hero-shade" />
+          <div className="hero-orbit hero-orbit-one" aria-hidden="true" /><div className="hero-orbit hero-orbit-two" aria-hidden="true" />
+          <div className="hero-copy hero-glass"><span className="hero-heart" aria-hidden="true"><Heart size={14} /></span><p className="eyebrow">Together with their families</p><h1 id="hero-title"><span>{invitation.bride}</span><i>&amp;</i><span>{invitation.groom}</span></h1><div className="hero-rule" /><p>{invitation.date} · {invitation.location}</p><a href="#welcome" className="explore">Enter our story <ArrowDown size={15} /></a></div>
         </section>
-        <section id="welcome" className="welcome paper-section"><Image className="side-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="welcome-copy"><p className="eyebrow olive">A joyful beginning</p><h2>Welcome</h2><p>With joyful hearts, we invite you to celebrate our wedding as we begin our life together in love and faith.</p><span className="signature">{invitation.bride[0]} &amp; {invitation.groom[0]}</span></div><div data-reveal className="save-date-card"><small>Save the date</small><strong>18</strong><span>December · 2026</span></div></section>
+        <section id="welcome" className="welcome paper-section"><Image className="side-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="welcome-copy"><p className="eyebrow olive">A joyful beginning</p><h2>Welcome</h2><p>With joyful hearts, we invite you to celebrate our wedding as we begin our life together in love and faith.</p><span className="signature">{invitation.bride[0]} &amp; {invitation.groom[0]}</span></div><div data-reveal className="save-date-card glass-lift"><small>Save the date</small><strong>18</strong><span>December · 2026</span></div></section>
         <section className="card-journey" aria-label="Wedding invitation details"><div className="stack-wrap">
           <article className="stack-card stack-intro"><p className="eyebrow">Our wedding day</p><h2>The Entourage</h2><div className="names-columns"><p>Parents of the bride<br/><b>The Vergera Family</b></p><p>Parents of the groom<br/><b>The Morales Family</b></p></div><p className="tiny-copy">With the love of our families and the blessing of those dearest to us.</p></article>
           <article className="stack-card stack-date"><p className="eyebrow">Friday</p><div className="date-lockup"><span>DEC</span><strong>18</strong><span>2026</span></div><p>Three o’clock in the afternoon</p><div className="ornament">❦</div></article>
           <article className="stack-card stack-details"><p className="eyebrow">The celebration</p><h2>Details</h2><div className="mini-event"><span>Ceremony</span><strong>{invitation.ceremonyTime}</strong><p>{invitation.venue}</p></div><div className="mini-event"><span>Reception</span><strong>{invitation.receptionTime}</strong><p>{invitation.receptionVenue}</p></div></article>
         </div></section>
+        <section className="main-entourage paper-section">
+          <div data-reveal className="section-heading"><p className="eyebrow olive">The people beside us</p><h2>Our Entourage</h2><p>Family and friends chosen to stand with us as we begin this new chapter.</p></div>
+          <div className="entourage-main-grid">
+            <article className="entourage-panel entourage-families glass-lift"><span className="role-number">01</span><h3>Our Families</h3><div><p><b>Parents of the Bride</b>The Vergera Family</p><p><b>Parents of the Groom</b>The Morales Family</p></div></article>
+            <article className="entourage-panel glass-lift"><span className="role-number">02</span><h3>Principal Sponsors</h3><p>Our cherished Ninongs and Ninangs who will guide us in love, faith, and marriage.</p></article>
+            <article className="entourage-panel glass-lift"><span className="role-number">03</span><h3>Secondary Sponsors</h3><ul><li><b>Candle</b><span>To light our path</span></li><li><b>Cord</b><span>To bind us together</span></li><li><b>Veil</b><span>To clothe us in unity</span></li></ul></article>
+            <article className="entourage-panel entourage-party glass-lift"><span className="role-number">04</span><h3>Wedding Party</h3><div><p><b>Best Man</b>With the groom</p><p><b>Maid of Honor</b>With the bride</p><p><b>Groomsmen</b>Family &amp; friends</p><p><b>Bridesmaids</b>Family &amp; friends</p></div></article>
+          </div>
+        </section>
         <section className="story editorial-section"><div data-reveal className="story-image"><Image className="story-photo" src="/assets/photos/garden-walk.webp" fill sizes="(max-width: 800px) 90vw, 45vw" alt="A newlywed couple walking hand in hand through a garden" /></div><div data-reveal className="story-copy"><p className="eyebrow olive">Our story · 2019—forever</p><h2>All roads led<br/><em>to you.</em></h2><p>{invitation.story}</p><blockquote>“The best is yet to be.”</blockquote></div></section>
         <section className="countdown-section"><p className="eyebrow">Until we say “I do”</p><h2>{invitation.date}</h2><div className="countdown" aria-label="Countdown to the wedding">{Object.entries(countdown).map(([label, value]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div></section>
-        <section className="events paper-section"><div data-reveal className="section-heading"><p className="eyebrow olive">Where &amp; when</p><h2>The Details</h2></div><div className="event-grid"><article data-reveal className="event-card"><span>01</span><h3>Ceremony</h3><p className="event-time">{invitation.ceremonyTime}</p><p>{invitation.venue}<br/>{invitation.location}</p><p className="description">An intimate garden ceremony beneath the palms.</p></article><article data-reveal className="event-card dark"><span>02</span><h3>Reception</h3><p className="event-time">{invitation.receptionTime}</p><p>{invitation.receptionVenue}<br/>{invitation.location}</p><p className="description">Dinner, dancing, and a night to remember.</p></article></div></section>
+        <section className="events paper-section"><div data-reveal className="section-heading"><p className="eyebrow olive">Where &amp; when</p><h2>The Details</h2></div><div className="event-grid"><article className="event-card glass-lift"><span>01</span><h3>Ceremony</h3><p className="event-time">{invitation.ceremonyTime}</p><p>{invitation.venue}<br/>{invitation.location}</p><p className="description">An intimate garden ceremony beneath the palms.</p></article><article className="event-card dark glass-lift"><span>02</span><h3>Reception</h3><p className="event-time">{invitation.receptionTime}</p><p>{invitation.receptionVenue}<br/>{invitation.location}</p><p className="description">Dinner, dancing, and a night to remember.</p></article></div></section>
         <section className="location editorial-section"><div data-reveal className="location-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 55vw" alt="Garden wedding venue" /></div><div data-reveal className="location-copy"><MapPin size={20}/><p className="eyebrow olive">Meet us there</p><h2>{invitation.venue}</h2><p>{invitation.address}</p><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address)}`} target="_blank" rel="noreferrer">Get directions <ArrowUpRight size={15}/></a></div></section>
-        <section className="dress paper-section"><div data-reveal><p className="eyebrow olive">Attire</p><h2>Garden Formal</h2><p>Dress in soft, earthy hues that feel at home beneath the palms.</p></div><div className="swatches" aria-label="Suggested color palette">{invitation.palette.map((color, i) => <span key={color} style={{ backgroundColor: color }} title={["Ivory","Champagne","Sage","Dusty rose","Muted brown"][i]} />)}</div></section>
+        <section className="dress paper-section"><div data-reveal className="dress-heading"><p className="eyebrow olive">Celebrate in style</p><h2>Attire Guide</h2><p>Garden formal in soft, earthy hues that feel at home beneath the palms.</p><div className="swatches" aria-label="Suggested color palette">{invitation.palette.map((color, i) => <span key={color} style={{ backgroundColor: color }} title={["Ivory","Champagne","Sage","Dusty rose","Muted brown"][i]} />)}</div></div><div className="main-attire-grid">
+          <article className="main-attire-card glass-lift"><div><Image src="/assets/attire/principal-sponsors.png" fill sizes="(max-width: 800px) 80vw, 24vw" alt="Principal sponsors in a black suit and khaki brown gown" /></div><span>01</span><h3>Principal Sponsors</h3><p>Black suit · Khaki brown gown</p><div className="mini-swatches"><i/><i/><i/></div></article>
+          <article className="main-attire-card glass-lift"><div><Image src="/assets/attire/guests.png" fill sizes="(max-width: 800px) 80vw, 24vw" alt="Guests in beige and earth-tone garden formal attire" /></div><span>02</span><h3>Guests</h3><p>Garden formal in beige and earth tones</p><div className="mini-swatches beige"><i/><i/><i/></div></article>
+          <article className="main-attire-card glass-lift"><div><Image src="/assets/attire/secondary-sponsors.png" fill sizes="(max-width: 800px) 80vw, 24vw" alt="Secondary sponsors in black suits and olive green gowns" /></div><span>03</span><h3>Secondary Sponsors</h3><p>Black suits · Olive green gowns</p><div className="mini-swatches olive"><i/><i/><i/></div></article>
+          <article className="main-attire-card glass-lift"><div><Image src="/assets/attire/children.png" fill sizes="(max-width: 800px) 80vw, 24vw" alt="Flower girls and bearers in white and beige formal attire" /></div><span>04</span><h3>Flower Girls &amp; Bearers</h3><p>White long sleeves and beige dresses</p><div className="mini-swatches light"><i/><i/><i/></div></article>
+        </div></section>
+        <section className="main-gifts"><Image className="gift-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="gift-glass"><p className="eyebrow">With gratitude</p><h2>Gift <em>Registry</em></h2><p>We are truly blessed to have you with us as we celebrate our love. Your presence is more than enough, but if you wish to give a gift, a monetary contribution would greatly help as we build the foundation for our future together.</p><span>With love, Mayumi &amp; Mardy</span></div></section>
         <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond by November 18, 2026.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit">Send response <ArrowUpRight size={15}/></button></form></>}</div></section>
         <footer><span className="footer-monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><p>{invitation.date} · Cabanatuan City</p><small>Made with love for a day to remember.</small></footer>
       </main>

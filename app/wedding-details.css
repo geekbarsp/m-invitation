@@ -1,0 +1,325 @@
+.main-entourage {
+  padding: clamp(110px, 13vw, 180px) 8vw;
+}
+
+.main-entourage .section-heading {
+  max-width: 650px;
+  margin-inline: auto;
+}
+
+.main-entourage .section-heading > p:last-child {
+  max-width: 520px;
+  margin: 22px auto 0;
+  font: 400 20px/1.55 var(--font-display), serif;
+}
+
+.entourage-main-grid {
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin: auto;
+}
+
+.entourage-panel {
+  position: relative;
+  min-width: 0;
+  min-height: 390px;
+  padding: 55px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 30px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .76), rgba(239, 234, 220, .5));
+  box-shadow: 0 25px 65px rgba(52, 61, 39, .11), inset 0 1px 0 #fff;
+  backdrop-filter: blur(16px);
+}
+
+.entourage-panel::after {
+  content: "";
+  position: absolute;
+  right: -75px;
+  bottom: -75px;
+  width: 190px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(86, 104, 61, .16);
+  border-radius: 50%;
+  box-shadow: 0 0 0 28px rgba(86, 104, 61, .035);
+}
+
+.entourage-panel h3 {
+  max-width: 350px;
+  margin: 48px 0 24px;
+  color: #3e4c2d;
+  font: 400 clamp(35px, 4vw, 52px)/.95 var(--font-display), serif;
+}
+
+.entourage-panel p {
+  max-width: 430px;
+  font: 400 18px/1.55 var(--font-display), serif;
+}
+
+.entourage-panel b {
+  display: block;
+  margin-bottom: 6px;
+  color: #5b6843;
+  font: 700 8px var(--font-sans), sans-serif;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.role-number {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .2em;
+}
+
+.entourage-families > div,
+.entourage-party > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.entourage-panel ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entourage-panel li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(60, 72, 43, .19);
+  font: 400 16px var(--font-display), serif;
+}
+
+.entourage-panel li:last-child {
+  border-bottom: 1px solid rgba(60, 72, 43, .19);
+}
+
+.entourage-panel li b {
+  margin: 0;
+}
+
+.dress.paper-section {
+  display: block;
+  padding: clamp(110px, 13vw, 180px) 7vw;
+}
+
+.dress-heading {
+  max-width: 720px;
+  margin: 0 auto 75px;
+  text-align: center;
+}
+
+.dress-heading > p:not(.eyebrow) {
+  max-width: 540px;
+  margin-inline: auto;
+}
+
+.dress-heading .swatches {
+  justify-content: center;
+  margin-top: 35px;
+}
+
+.main-attire-grid {
+  width: min(1240px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin: auto;
+}
+
+.main-attire-card {
+  position: relative;
+  min-width: 0;
+  min-height: 520px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 290px auto auto auto;
+  align-items: center;
+  padding: 28px 35px 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 30px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .78), rgba(239, 234, 220, .48));
+  box-shadow: 0 24px 62px rgba(52, 61, 39, .11), inset 0 1px 0 #fff;
+  backdrop-filter: blur(16px);
+}
+
+.main-attire-card > div:first-child {
+  position: relative;
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 100%;
+}
+
+.main-attire-card img {
+  object-fit: contain;
+  filter: drop-shadow(0 13px 16px rgba(42, 48, 30, .13));
+  transition: transform .5s cubic-bezier(.2, .8, .2, 1);
+}
+
+.main-attire-card:hover img {
+  transform: translateY(-6px) scale(1.035);
+}
+
+.main-attire-card > span {
+  color: #6a7651;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .2em;
+}
+
+.main-attire-card h3 {
+  grid-column: 1 / -1;
+  margin: 13px 0 5px;
+  color: #3e4c2d;
+  font: 400 clamp(30px, 3vw, 42px)/1 var(--font-display), serif;
+}
+
+.main-attire-card > p {
+  grid-column: 1;
+  margin: 0;
+  font: 400 17px var(--font-display), serif;
+}
+
+.main-attire-card .mini-swatches {
+  grid-column: 2;
+  grid-row: 4;
+  margin: 0 0 0 15px;
+}
+
+.main-gifts {
+  position: relative;
+  min-height: 82vh;
+  display: grid;
+  place-items: center;
+  padding: 110px 8vw;
+  overflow: hidden;
+  color: #f7f2e6;
+  background: radial-gradient(circle at 50% 30%, #64734a, #3a492b 48%, #27351e);
+}
+
+.main-gifts::before {
+  content: "";
+  position: absolute;
+  width: min(780px, 78vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 50%;
+  box-shadow: 0 0 0 75px rgba(255, 255, 255, .025), 0 0 0 150px rgba(255, 255, 255, .015);
+}
+
+.gift-glass {
+  position: relative;
+  z-index: 2;
+  width: min(790px, 92vw);
+  padding: clamp(55px, 8vw, 95px);
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 38px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .045));
+  box-shadow: 0 35px 90px rgba(18, 29, 12, .28), inset 0 1px 0 rgba(255, 255, 255, .2);
+  text-align: center;
+  backdrop-filter: blur(17px);
+}
+
+.gift-glass h2 em {
+  color: #e6d7ad;
+  font: 400 1.05em/1 var(--font-script), cursive;
+}
+
+.gift-glass > p:not(.eyebrow) {
+  max-width: 590px;
+  margin: 30px auto;
+  font: italic 21px/1.65 var(--font-display), serif;
+}
+
+.gift-glass > span {
+  opacity: .74;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .19em;
+  text-transform: uppercase;
+}
+
+.gift-flower {
+  position: absolute;
+  z-index: 3;
+  left: -80px;
+  bottom: -120px;
+  width: min(390px, 30vw);
+  height: auto;
+  filter: drop-shadow(0 18px 20px rgba(19, 29, 12, .35));
+  transform: rotate(-9deg);
+}
+
+@media (max-width: 800px) {
+  .main-entourage {
+    padding: 100px 6vw;
+  }
+
+  .entourage-main-grid,
+  .main-attire-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .entourage-panel {
+    min-height: 340px;
+    padding: 40px 32px;
+    border-radius: 26px;
+  }
+
+  .entourage-panel h3 {
+    margin-top: 38px;
+  }
+
+  .entourage-families > div,
+  .entourage-party > div {
+    gap: 16px;
+  }
+
+  .entourage-panel p {
+    font-size: 16px;
+  }
+
+  .dress.paper-section {
+    padding: 100px 5vw;
+  }
+
+  .dress-heading {
+    margin-bottom: 55px;
+  }
+
+  .main-attire-card {
+    min-height: 470px;
+    grid-template-rows: 250px auto auto auto;
+    padding: 24px 28px 30px;
+    border-radius: 26px;
+  }
+
+  .main-gifts {
+    min-height: 85vh;
+    padding: 90px 4vw;
+  }
+
+  .gift-glass {
+    padding: 60px 8vw;
+    border-radius: 28px;
+  }
+
+  .gift-glass > p:not(.eyebrow) {
+    font-size: 18px;
+  }
+
+  .gift-flower {
+    left: -70px;
+    bottom: -70px;
+    width: 55vw;
+    opacity: .78;
+  }
+}

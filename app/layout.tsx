@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Great_Vibes, Manrope } from "next/font/google";
 import "./globals.css";
+import "./wedding-details.css";
 
 const display = Cormorant_Garamond({ variable: "--font-display", subsets: ["latin"], weight: ["400", "500", "600"], style: ["normal", "italic"] });
 const script = Great_Vibes({ variable: "--font-script", subsets: ["latin"], weight: "400" });
