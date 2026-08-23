@@ -264,6 +264,7 @@ export default function InvitationExperience() {
         <Image className="intro-flower intro-flower-left" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" loading="eager" />
         <Image className="intro-flower intro-flower-right" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" loading="eager" />
         <div ref={stationery} className="stationery-collage" aria-hidden="true">
+          <div className="stationery-breathe">
           <Image
             className="stationery-piece canva-stationery"
             src="/assets/stationery-clean-v2.png"
@@ -281,6 +282,7 @@ export default function InvitationExperience() {
             <strong>Mayumi <i>&amp;</i><br />Mardy</strong>
             <small>Cordially invite you to our<br />wedding celebration</small>
             <b>December 18, 2026<br />Friday · {invitation.ceremonyTime}<br />{invitation.venue}<br />{invitation.location}</b>
+          </div>
           </div>
         </div>
         <div ref={introDetails} className="intro-details">
