@@ -13,15 +13,15 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "http://localhost:3000",
   ),
-  title: "Mayumi Vergera & Mardy Morales — December 18, 2026",
-  description: "Join Mayumi Vergera and Mardy Morales for their wedding celebration in Cabanatuan City, Nueva Ecija.",
+  title: "Mayumi Vergara & Mardy Morales — December 13, 2026",
+  description: "Join Mayumi Vergara and Mardy Morales for their wedding celebration in Cabanatuan City, Nueva Ecija.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
   openGraph: {
-    title: "Mayumi Vergera & Mardy Morales",
-    description: "December 18, 2026 · Cabanatuan City, Nueva Ecija",
-    images: [{ url: "/og-mayumi-mardy.png", width: 1732, height: 907, alt: "Mayumi Vergera and Mardy Morales wedding invitation" }],
+    title: "Mayumi Vergara & Mardy Morales",
+    description: "December 13, 2026 · Cabanatuan City, Nueva Ecija",
+    images: [{ url: "/og-mayumi-mardy.png", width: 1732, height: 907, alt: "Mayumi Vergara and Mardy Morales wedding invitation" }],
   },
-  twitter: { card: "summary_large_image", title: "Mayumi Vergera & Mardy Morales", description: "December 18, 2026 · Cabanatuan City, Nueva Ecija", images: ["/og-mayumi-mardy.png"] },
+  twitter: { card: "summary_large_image", title: "Mayumi Vergara & Mardy Morales", description: "December 13, 2026 · Cabanatuan City, Nueva Ecija", images: ["/og-mayumi-mardy.png"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

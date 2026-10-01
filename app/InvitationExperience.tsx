@@ -24,6 +24,23 @@ const ambientPetals = Array.from({ length: 12 }, (_, index) => ({
   duration: 11 + (index % 5) * 1.8,
 }));
 
+type NamePair = readonly [string, string];
+
+function PeoplePairs({ pairs }: { pairs: readonly NamePair[] }) {
+  return <div className="people-pairs">{pairs.map(([first, second]) => <p key={`${first}-${second}`}><span>{first}</span><i>&amp;</i><span>{second}</span></p>)}</div>;
+}
+
+function ChildrenAndBearers() {
+  const { weddingParty } = invitation;
+  return <div className="children-party">
+    <div><b>Flower Girls</b><ol>{weddingParty.flowerGirls.map((name) => <li key={name}>{name}</li>)}</ol></div>
+    <p><b>Little Bride &amp; Groom</b>{weddingParty.littleBrideAndGroom.join(" & ")}</p>
+    <p><b>Ring Bearer</b>{weddingParty.ringBearer}</p>
+    <p><b>Coin Bearer</b>{weddingParty.coinBearer}</p>
+    <p><b>Bible Bearer</b>{weddingParty.bibleBearer}</p>
+  </div>;
+}
+
 export default function InvitationExperience() {
   const root = useRef<HTMLDivElement>(null);
   const intro = useRef<HTMLDivElement>(null);
@@ -253,7 +270,7 @@ export default function InvitationExperience() {
           {invitePetals.map((petal) => <span key={petal.id} style={{ left: `${petal.left}%`, animationDelay: `${petal.delay}s`, animationDuration: `${petal.duration}s` }} />)}
         </div>}
         <div className="intro-frame" aria-hidden="true"><span /><span /><span /><span /></div>
-        <div className="intro-heading"><span>A celebration of love</span><p className="intro-eyebrow">You’re invited</p><small>Mayumi &amp; Mardy · 18.12.26</small></div>
+        <div className="intro-heading"><span>A celebration of love</span><p className="intro-eyebrow">You’re invited</p><small>Mayumi &amp; Mardy · 13.12.26</small></div>
         <div className="envelope-breathe">
           <button ref={envelope} className="envelope" onClick={openInvitation} aria-label="Open the wedding invitation">
             <div className="envelope-shadow" /><div className="envelope-back" />
@@ -281,7 +298,7 @@ export default function InvitationExperience() {
             <p>We</p>
             <strong>Mayumi <i>&amp;</i><br />Mardy</strong>
             <small>Cordially invite you to our<br />wedding celebration</small>
-            <b>December 18, 2026<br />Friday · {invitation.ceremonyTime}<br />{invitation.venue}<br />{invitation.location}</b>
+            <b>{invitation.date}<br />Sunday · {invitation.ceremonyTime}<br />{invitation.venue}<br />{invitation.location}</b>
           </div>
           </div>
         </div>
@@ -337,10 +354,11 @@ export default function InvitationExperience() {
 
             <section className="popup-section popup-entourage">
               <p className="popup-kicker">Together with our families</p><h2>The <em>Entourage</em></h2>
-              <div className="entourage-family"><p><b>Parents of the Bride</b>The Vergera Family</p><p><b>Parents of the Groom</b>The Morales Family</p></div>
-              <h3>Principal Sponsors</h3><p className="entourage-note">Our cherished Ninongs and Ninangs who will guide us in love, faith, and marriage.</p>
-              <h3>Secondary Sponsors</h3><div className="sponsor-grid"><p><b>Candle</b>To light our path</p><p><b>Cord</b>To bind us together</p><p><b>Veil</b>To clothe us in unity</p></div>
-              <div className="wedding-party"><p><b>Best Man</b>With the groom</p><p><b>Maid of Honor</b>With the bride</p><p><b>Groomsmen</b>Family &amp; friends</p><p><b>Bridesmaids</b>Family &amp; friends</p></div>
+              <div className="entourage-family"><p><b>Parents of the Bride</b>{invitation.parents.bride.join(" & ")}</p><p><b>Parents of the Groom</b>{invitation.parents.groom.join(" & ")}</p></div>
+              <h3>Principal Sponsors</h3><PeoplePairs pairs={invitation.principalSponsors} />
+              <h3>Secondary Sponsors</h3><PeoplePairs pairs={invitation.secondarySponsors} /><p className="solo-sponsor">{invitation.additionalSecondarySponsor}</p>
+              <div className="wedding-party"><p><b>Best Man</b>{invitation.weddingParty.bestMan}</p><p><b>Bridesmaid</b>{invitation.weddingParty.bridesmaid}</p></div>
+              <ChildrenAndBearers />
             </section>
 
             <section className="popup-section popup-attire">
@@ -356,7 +374,7 @@ export default function InvitationExperience() {
             <section className="popup-section popup-venue">
               <p className="popup-kicker">Where we’ll celebrate</p><h2>The <em>Venue</em></h2>
               <div className="popup-venue-photo"><Image src="/assets/photos/glass-garden.webp" fill sizes="(max-width: 800px) 100vw, 900px" alt="Garden wedding venue" /></div>
-              <p>The ceremony will be held on Friday, December 18, 2026, at {invitation.ceremonyTime}. The reception will follow at {invitation.receptionTime}.</p>
+              <p>The ceremony will be held on Sunday, {invitation.date}, at {invitation.ceremonyTime}. The reception will follow at {invitation.receptionTime}.</p>
               <div className="popup-venue-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address)}`} target="_blank" rel="noreferrer">View ceremony map <ArrowUpRight size={14} /></a><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.receptionVenue + ", " + invitation.location)}`} target="_blank" rel="noreferrer">View reception map <ArrowUpRight size={14} /></a></div>
             </section>
 
@@ -392,19 +410,20 @@ export default function InvitationExperience() {
           <div className="hero-orbit hero-orbit-one" aria-hidden="true" /><div className="hero-orbit hero-orbit-two" aria-hidden="true" />
           <div className="hero-copy hero-glass"><span className="hero-heart" aria-hidden="true"><Heart size={14} /></span><p className="eyebrow">Together with their families</p><h1 id="hero-title"><span className="hero-name"><b>{invitation.bride.split(" ")[0]}</b><small>{invitation.bride.split(" ").slice(1).join(" ")}</small></span><i>&amp;</i><span className="hero-name"><b>{invitation.groom.split(" ")[0]}</b><small>{invitation.groom.split(" ").slice(1).join(" ")}</small></span></h1><div className="hero-rule" /><p>{invitation.date} · {invitation.location}</p><a href="#welcome" className="explore">Enter our story <ArrowDown size={15} /></a></div>
         </section>
-        <section id="welcome" className="welcome paper-section"><Image className="side-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="welcome-copy"><p className="eyebrow olive">A joyful beginning</p><h2>Welcome</h2><p>With joyful hearts, we invite you to celebrate our wedding as we begin our life together in love and faith.</p><span className="signature">{invitation.bride[0]} &amp; {invitation.groom[0]}</span></div><div data-reveal className="save-date-card glass-lift"><small>Save the date</small><strong>18</strong><span>December · 2026</span></div></section>
+        <section id="welcome" className="welcome paper-section"><Image className="side-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="welcome-copy"><p className="eyebrow olive">A joyful beginning</p><h2>Welcome</h2><p>With joyful hearts, we invite you to celebrate our wedding as we begin our life together in love and faith.</p><span className="signature">{invitation.bride[0]} &amp; {invitation.groom[0]}</span></div><div data-reveal className="save-date-card glass-lift"><small>Save the date</small><strong>13</strong><span>December · 2026</span></div></section>
         <section className="card-journey" aria-label="Wedding invitation details"><div className="stack-wrap">
-          <article className="stack-card stack-intro"><p className="eyebrow">Our wedding day</p><h2>The Entourage</h2><div className="names-columns"><p>Parents of the bride<br/><b>The Vergera Family</b></p><p>Parents of the groom<br/><b>The Morales Family</b></p></div><p className="tiny-copy">With the love of our families and the blessing of those dearest to us.</p></article>
-          <article className="stack-card stack-date"><p className="eyebrow">Friday</p><div className="date-lockup"><span>DEC</span><strong>18</strong><span>2026</span></div><p>Three o’clock in the afternoon</p><div className="ornament">❦</div></article>
+          <article className="stack-card stack-intro"><p className="eyebrow">Our wedding day</p><h2>The Entourage</h2><div className="names-columns"><p>Parents of the bride<br/><b>{invitation.parents.bride.join(" & ")}</b></p><p>Parents of the groom<br/><b>{invitation.parents.groom.join(" & ")}</b></p></div><p className="tiny-copy">With the love of our families and the blessing of those dearest to us.</p></article>
+          <article className="stack-card stack-date"><p className="eyebrow">Sunday</p><div className="date-lockup"><span>DEC</span><strong>13</strong><span>2026</span></div><p>Three o’clock in the afternoon</p><div className="ornament">❦</div></article>
           <article className="stack-card stack-details"><p className="eyebrow">The celebration</p><h2>Details</h2><div className="mini-event"><span>Ceremony</span><strong>{invitation.ceremonyTime}</strong><p>{invitation.venue}</p></div><div className="mini-event"><span>Reception</span><strong>{invitation.receptionTime}</strong><p>{invitation.receptionVenue}</p></div></article>
         </div></section>
         <section className="main-entourage paper-section">
           <div data-reveal className="section-heading"><p className="eyebrow olive">The people beside us</p><h2>Our Entourage</h2><p>Family and friends chosen to stand with us as we begin this new chapter.</p></div>
           <div className="entourage-main-grid">
-            <article className="entourage-panel entourage-families glass-lift"><span className="role-number">01</span><h3>Our Families</h3><div><p><b>Parents of the Bride</b>The Vergera Family</p><p><b>Parents of the Groom</b>The Morales Family</p></div></article>
-            <article className="entourage-panel glass-lift"><span className="role-number">02</span><h3>Principal Sponsors</h3><p>Our cherished Ninongs and Ninangs who will guide us in love, faith, and marriage.</p></article>
-            <article className="entourage-panel glass-lift"><span className="role-number">03</span><h3>Secondary Sponsors</h3><ul><li><b>Candle</b><span>To light our path</span></li><li><b>Cord</b><span>To bind us together</span></li><li><b>Veil</b><span>To clothe us in unity</span></li></ul></article>
-            <article className="entourage-panel entourage-party glass-lift"><span className="role-number">04</span><h3>Wedding Party</h3><div><p><b>Best Man</b>With the groom</p><p><b>Maid of Honor</b>With the bride</p><p><b>Groomsmen</b>Family &amp; friends</p><p><b>Bridesmaids</b>Family &amp; friends</p></div></article>
+            <article className="entourage-panel entourage-families glass-lift"><span className="role-number">01</span><h3>Our Families</h3><div><p><b>Parents of the Bride</b>{invitation.parents.bride.join(" & ")}</p><p><b>Parents of the Groom</b>{invitation.parents.groom.join(" & ")}</p></div></article>
+            <article className="entourage-panel entourage-list-panel glass-lift"><span className="role-number">02</span><h3>Principal Sponsors</h3><PeoplePairs pairs={invitation.principalSponsors} /></article>
+            <article className="entourage-panel entourage-list-panel glass-lift"><span className="role-number">03</span><h3>Secondary Sponsors</h3><PeoplePairs pairs={invitation.secondarySponsors} /><p className="solo-sponsor">{invitation.additionalSecondarySponsor}</p></article>
+            <article className="entourage-panel entourage-party glass-lift"><span className="role-number">04</span><h3>Wedding Party</h3><div><p><b>Best Man</b>{invitation.weddingParty.bestMan}</p><p><b>Bridesmaid</b>{invitation.weddingParty.bridesmaid}</p></div></article>
+            <article className="entourage-panel entourage-children glass-lift"><span className="role-number">05</span><h3>Flower Girls &amp; Bearers</h3><ChildrenAndBearers /></article>
           </div>
         </section>
         <section className="story editorial-section"><div data-reveal className="story-image"><Image className="story-photo" src="/assets/photos/garden-walk.webp" fill sizes="(max-width: 800px) 90vw, 45vw" alt="A newlywed couple walking hand in hand through a garden" /></div><div data-reveal className="story-copy"><p className="eyebrow olive">Our story · 2019—forever</p><h2>All roads led<br/><em>to you.</em></h2><p>{invitation.story}</p><blockquote>“The best is yet to be.”</blockquote></div></section>
@@ -418,7 +437,7 @@ export default function InvitationExperience() {
           <article className="main-attire-card glass-lift"><div><Image src="/assets/attire/children.png" fill sizes="(max-width: 800px) 80vw, 24vw" alt="Flower girls and bearers in white and beige formal attire" /></div><span>04</span><h3>Flower Girls &amp; Bearers</h3><p>White long sleeves and beige dresses</p><div className="mini-swatches light"><i/><i/><i/></div></article>
         </div></section>
         <section id="gifts" className="main-gifts"><Image className="gift-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="gift-glass"><p className="eyebrow">With gratitude</p><h2>Gift <em>Registry</em></h2><p>We are truly blessed to have you with us as we celebrate our love. Your presence is more than enough, but if you wish to give a gift, a monetary contribution would greatly help as we build the foundation for our future together.</p><span>With love, Mayumi &amp; Mardy</span></div></section>
-        <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond by November 18, 2026.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit">Send response <ArrowUpRight size={15}/></button></form></>}</div></section>
+        <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond by November 13, 2026.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit">Send response <ArrowUpRight size={15}/></button></form></>}</div></section>
         <footer><span className="footer-monogram">{invitation.bride[0]}<span>&amp;</span>{invitation.groom[0]}</span><p>{invitation.date} · Cabanatuan City</p><small>Made with love for a day to remember.</small></footer>
       </main>
       {/* Background music is controlled by the adjacent accessible button. */}

@@ -105,6 +105,31 @@
   margin: 0;
 }
 
+.entourage-list-panel {
+  min-height: 650px;
+}
+
+.entourage-list-panel .people-pairs {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.entourage-list-panel .people-pairs p {
+  max-width: none;
+  font-size: 15px;
+}
+
+.entourage-children {
+  grid-column: 1 / -1;
+}
+
+.entourage-children .children-party {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  text-align: left;
+}
+
 .dress.paper-section {
   display: block;
   padding: clamp(110px, 13vw, 180px) 7vw;
@@ -285,6 +310,14 @@
 
   .entourage-panel p {
     font-size: 16px;
+  }
+
+  .entourage-list-panel {
+    min-height: auto;
+  }
+
+  .entourage-children {
+    grid-column: auto;
   }
 
   .dress.paper-section {
