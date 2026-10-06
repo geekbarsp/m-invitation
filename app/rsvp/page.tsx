@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { CalendarDays, Check, Clock3, Database, Heart, LockKeyhole, LogOut, MailOpen, MessageCircle, Users, X } from "lucide-react";
 import { getRsvpResponses, type RsvpResponse } from "../../lib/rsvp-store";
+import AutoRefresh from "./AutoRefresh";
 import { signIn, signOut } from "./actions";
 import { getExpectedInboxToken, rsvpInboxCookieName } from "./auth";
 import responseStyles from "./responses.module.css";
@@ -71,6 +72,7 @@ export default async function RsvpInboxPage({ searchParams }: PageProps) {
   const totalGuests = attending.reduce((total, response) => total + response.guest_count, 0);
 
   return <main className={styles.dashboard}>
+    <AutoRefresh />
     <header className={styles.dashboardHeader}>
       <div><span className={styles.monogram}>M<span>&amp;</span>M</span><p>Private wedding dashboard</p></div>
       <form action={signOut}><button className={styles.signOut} type="submit"><LogOut size={16} /><span>Sign out</span></button></form>
