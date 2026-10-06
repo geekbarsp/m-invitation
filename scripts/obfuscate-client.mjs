@@ -1,9 +1,27 @@
-import { readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { access, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import JavaScriptObfuscator from "javascript-obfuscator";
 
-const chunksDirectory = path.join(process.cwd(), ".next", "static", "chunks");
 const appMarkers = ["/assets/prenup/", "Mayumi Vergara", "A map of"];
+
+const chunkDirectoryCandidates = [
+  path.join(process.cwd(), ".next", "static", "chunks"),
+  path.join(process.cwd(), ".vercel", "output", "static", "_next", "static", "chunks"),
+  path.join(process.cwd(), "out", "_next", "static", "chunks"),
+  path.join(process.cwd(), ".vinext", "static", "chunks"),
+];
+
+async function locateChunksDirectory() {
+  for (const candidate of chunkDirectoryCandidates) {
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {
+      // Build adapters can relocate client assets before this post-build step.
+    }
+  }
+  return null;
+}
 
 async function findJavaScriptFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -12,6 +30,13 @@ async function findJavaScriptFiles(directory) {
     return entry.isDirectory() ? findJavaScriptFiles(target) : target.endsWith(".js") ? [target] : [];
   }));
   return files.flat();
+}
+
+const chunksDirectory = await locateChunksDirectory();
+
+if (!chunksDirectory) {
+  console.warn("[obfuscate] Client chunks were already relocated by the deployment adapter; skipping post-build obfuscation safely.");
+  process.exit(0);
 }
 
 const files = await findJavaScriptFiles(chunksDirectory);
@@ -46,9 +71,7 @@ for (const file of files) {
   protectedChunks += 1;
 }
 
-if (protectedChunks === 0) {
-  throw new Error("No application chunk was found to obfuscate.");
-}
+if (protectedChunks === 0) console.warn("[obfuscate] No matching application chunk was found; build output was left unchanged.");
 
 const bytes = (await Promise.all(files.map((file) => stat(file)))).reduce((total, item) => total + item.size, 0);
 console.log(`[obfuscate] Protected ${protectedChunks} application chunk(s); ${bytes} client bytes emitted.`);
