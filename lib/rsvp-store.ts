@@ -65,3 +65,25 @@ export async function getRsvpResponses(): Promise<RsvpResponse[]> {
 
   return result.json() as Promise<RsvpResponse[]>;
 }
+
+export async function deleteRsvpResponses(ids: string[]): Promise<number> {
+  const { url, secretKey } = getSupabaseConfig();
+  const filter = encodeURIComponent(`(${ids.join(",")})`);
+  const result = await fetch(`${url}/rest/v1/rsvp_responses?id=in.${filter}&select=id`, {
+    method: "DELETE",
+    headers: {
+      ...supabaseHeaders(secretKey),
+      Prefer: "return=representation",
+    },
+    cache: "no-store",
+  });
+
+  if (!result.ok) {
+    const details = await result.text();
+    console.error("Unable to delete RSVP responses:", result.status, details);
+    throw new Error("Unable to delete RSVP responses.");
+  }
+
+  const deleted = await result.json() as Array<{ id: string }>;
+  return deleted.length;
+}

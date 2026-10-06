@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { CalendarDays, Check, Clock3, Database, Heart, LockKeyhole, LogOut, MailOpen, MessageCircle, Users, X } from "lucide-react";
+import { CalendarDays, Check, Clock3, Database, Heart, LockKeyhole, LogOut, MailOpen, Users, X } from "lucide-react";
 import { getRsvpResponses, type RsvpResponse } from "../../lib/rsvp-store";
 import AutoRefresh from "./AutoRefresh";
+import ResponseManager from "./ResponseManager";
 import { signIn, signOut } from "./actions";
 import { getExpectedInboxToken, rsvpInboxCookieName } from "./auth";
-import responseStyles from "./responses.module.css";
 import styles from "./rsvp.module.css";
 
 export const dynamic = "force-dynamic";
@@ -17,12 +17,6 @@ export const metadata: Metadata = {
 };
 
 type PageProps = { searchParams: Promise<{ error?: string }> };
-
-const responseDate = new Intl.DateTimeFormat("en-PH", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "Asia/Manila",
-});
 
 export default async function RsvpInboxPage({ searchParams }: PageProps) {
   const [{ error }, cookieStore] = await Promise.all([searchParams, cookies()]);
@@ -92,7 +86,6 @@ export default async function RsvpInboxPage({ searchParams }: PageProps) {
 
     <section className={styles.responsesPanel}>
       <div className={styles.responsesHeading}><div><p className={styles.kicker}>Guest list</p><h2>Responses</h2></div><span className={styles.privateBadge}><LockKeyhole size={12} /> Private</span></div>
-      <div className={styles.toolbar}><div><MailOpen size={16} /><span>{responses.length} {responses.length === 1 ? "reply" : "replies"}</span></div><span>Newest first</span></div>
 
       {loadError ? <div className={styles.emptyState}>
         <span className={styles.emptyIcon}><Database size={28} /></span>
@@ -103,16 +96,7 @@ export default async function RsvpInboxPage({ searchParams }: PageProps) {
         <h3>No responses yet</h3>
         <p>New replies from the invitation will appear here automatically.</p>
         <div className={styles.previewFields}><span><CalendarDays size={14} /> Attendance</span><span><Users size={14} /> Party size</span><span><Clock3 size={14} /> Submitted</span></div>
-      </div> : <div className={responseStyles.responseList}>
-        {responses.map((response) => <article className={responseStyles.responseCard} key={response.id}>
-          <div className={responseStyles.responseTop}>
-            <div><h3>{response.full_name}</h3><time dateTime={response.created_at}><Clock3 size={13} />{responseDate.format(new Date(response.created_at))}</time></div>
-            <span className={response.attendance === "yes" ? responseStyles.accepted : responseStyles.declined}>{response.attendance === "yes" ? <Check size={13} /> : <X size={13} />}{response.attendance === "yes" ? "Attending" : "Declined"}</span>
-          </div>
-          {response.attendance === "yes" && <p className={responseStyles.partySize}><Users size={15} />{response.guest_count} {response.guest_count === 1 ? "guest" : "guests"}</p>}
-          {response.message && <blockquote><MessageCircle size={15} /><p>{response.message}</p></blockquote>}
-        </article>)}
-      </div>}
+      </div> : <ResponseManager responses={responses} />}
     </section>
   </main>;
 }

@@ -15,10 +15,6 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    if (cleanSingleLine(body.website, 100)) {
-      return NextResponse.json({ ok: true });
-    }
-
     const fullName = cleanSingleLine(body.name, 120);
     const attendance = body.attendance === "yes" || body.attendance === "no" ? body.attendance : null;
     const requestedGuests = Number.parseInt(String(body.guests ?? "1"), 10);
@@ -28,8 +24,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please enter your name and attendance choice." }, { status: 400 });
     }
 
-    if (attendance === "yes" && (!Number.isInteger(requestedGuests) || requestedGuests < 1 || requestedGuests > 4)) {
-      return NextResponse.json({ error: "Please select a valid number of guests." }, { status: 400 });
+    if (attendance === "yes" && (!Number.isSafeInteger(requestedGuests) || requestedGuests < 1 || requestedGuests > 2_147_483_647)) {
+      return NextResponse.json({ error: "Please enter a valid number of guests." }, { status: 400 });
     }
 
     await createRsvpResponse({

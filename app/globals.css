@@ -358,7 +358,6 @@ blockquote { margin:55px 0 0; padding:22px 0 0; border-top:1px solid var(--line)
 .rsvp-paper fieldset { margin:28px 0 0; padding:0 0 22px; border:0; border-bottom:1px solid #bdb9ad; }
 .rsvp-paper fieldset label { display:inline-flex; align-items:center; gap:9px; margin:15px 25px 0 0; font:400 17px var(--font-display),serif; }
 .rsvp-paper textarea { resize:vertical; }
-.rsvp-paper .rsvp-honeypot { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
 .rsvp-paper form>button:disabled { opacity:.55; cursor:wait; }
 .form-error { margin-top:15px; color:#924a42; font-size:12px; }
 .rsvp-flower { position:absolute; z-index:3; right:calc(50% - 520px); bottom:3%; width:min(390px,32vw); height:auto; filter:drop-shadow(0 15px 15px #2f465c55); pointer-events:none; }
