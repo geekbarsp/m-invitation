@@ -65,6 +65,7 @@ export default function InvitationExperience() {
   const [transitioning, setTransitioning] = useState(false);
   const [countdown, setCountdown] = useState<Countdown>(emptyCountdown);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -256,11 +257,29 @@ export default function InvitationExperience() {
     audio.current.currentTime = Math.max(0, Math.min(audio.current.duration || Infinity, audio.current.currentTime + seconds));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     if (!String(data.get("name") || "").trim() || !data.get("attendance")) { setError("Please share your name and attendance choice."); return; }
-    setError(""); setSubmitted(true);
+    setError("");
+    setSubmitting(true);
+
+    try {
+      const response = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "We couldn't save your reply right now.");
+      form.reset();
+      setSubmitted(true);
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "We couldn't save your reply right now. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -448,7 +467,7 @@ export default function InvitationExperience() {
           <article className="main-attire-card glass-lift"><div><Image src="/assets/attire/children-blue-v2.png" fill sizes="(max-width: 800px) 80vw, 24vw" alt="Flower girls and bearers wearing formal attire from the blue wedding palette" /></div><span>04</span><h3>Flower Girls &amp; Bearers</h3><p>Any color from the blue palette</p><div className="mini-swatches light"><i/><i/><i/></div></article>
         </div></section>
         <section id="gifts" className="main-gifts"><Image className="gift-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div data-reveal className="gift-glass"><p className="eyebrow">With gratitude</p><h2>Gift <em>Registry</em></h2><p>We are truly blessed to have you with us as we celebrate our love. Your presence is more than enough, but if you wish to give a gift, a monetary contribution would greatly help as we build the foundation for our future together.</p><span>With love, Mardy &amp; Mayumi</span></div></section>
-        <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond at your earliest convenience.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit">Send response <ArrowUpRight size={15}/></button></form></>}</div></section>
+        <section id="rsvp" className="rsvp-section"><Image className="rsvp-flower" src="/assets/flowers/botanical-cascade.webp" width={1024} height={1536} alt="" /><div className="rsvp-paper" data-reveal>{submitted ? <div className="success"><span><Check size={24}/></span><p className="eyebrow olive">Thank you</p><h2>Your reply is received.</h2><p>We can’t wait to celebrate together.</p><button onClick={() => setSubmitted(false)}>Send another response</button></div> : <><p className="eyebrow olive">Kindly reply</p><h2>RSVP</h2><p>Please respond at your earliest convenience.</p><form onSubmit={handleSubmit} noValidate><label>Full name<input name="name" type="text" autoComplete="name" maxLength={120} required /></label><label className="rsvp-honeypot" aria-hidden="true">Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label><fieldset><legend>Will you attend?</legend><label><input type="radio" name="attendance" value="yes" required /> Joyfully accepts</label><label><input type="radio" name="attendance" value="no" /> Regretfully declines</label></fieldset><label>Number of guests<select name="guests" defaultValue="1"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label><label>Message <span>(optional)</span><textarea name="message" rows={3} maxLength={1000} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button type="submit" disabled={submitting}>{submitting ? "Sending…" : "Send response"} <ArrowUpRight size={15}/></button></form></>}</div></section>
         <footer><span className="footer-monogram">{invitation.groom[0]}<span>&amp;</span>{invitation.bride[0]}</span><p>{invitation.date} · Zaragoza, Nueva Ecija</p><small>Made with love for a day to remember.</small></footer>
       </main>
       {/* Background music is controlled by the adjacent accessible button. */}
