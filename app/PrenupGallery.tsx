@@ -98,7 +98,7 @@ export default function PrenupGallery({ compact = false }: { compact?: boolean }
       aria-labelledby={compact ? "popup-prenup-title" : "prenup-title"}>
       <div className="journey-contours" aria-hidden="true" />
       <header className="prenup-heading">
-        <span className="journey-edition">THE MAYUMI &amp; MARDY ATLAS</span>
+        <span className="journey-edition">THE MARDY &amp; MAYUMI ATLAS</span>
         <div className="journey-heading-mark" aria-hidden="true"><span /><Heart size={18} /><span /></div>
         <h2 id={compact ? "popup-prenup-title" : "prenup-title"}>A map of <em>us.</em></h2>
         <p>Eight little stops. A thousand memories.<br />One beautiful journey, together.</p>
