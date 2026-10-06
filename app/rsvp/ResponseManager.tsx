@@ -17,6 +17,7 @@ const responseDate = new Intl.DateTimeFormat("en-PH", {
 export default function ResponseManager({ responses }: { responses: RsvpResponse[] }) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const passwordInput = useRef<HTMLInputElement>(null);
   const [deleteState, deleteAction, deletePending] = useActionState(async (previousState: DeleteResponsesState, formData: FormData) => {
@@ -24,6 +25,7 @@ export default function ResponseManager({ responses }: { responses: RsvpResponse
     if (passwordInput.current) passwordInput.current.value = "";
     if (result.status === "success") {
       setSelectedIds(new Set());
+      setSelectionMode(false);
       setConfirmationOpen(false);
       router.refresh();
     } else {
@@ -74,16 +76,31 @@ export default function ResponseManager({ responses }: { responses: RsvpResponse
     setSelectedIds(allSelected ? new Set() : new Set(responses.map((response) => response.id)));
   };
 
+  const leaveSelectionMode = () => {
+    setSelectedIds(new Set());
+    setSelectionMode(false);
+  };
+
   return <>
-    <div className={styles.managerBar}>
-      <button type="button" className={styles.selectAll} onClick={toggleAll} aria-pressed={allSelected}>
-        {allSelected ? <CheckSquare2 size={17} /> : <Square size={17} />}
-        <span>Select all</span>
-      </button>
-      <p aria-live="polite"><strong>{validSelectedIds.size}</strong> selected</p>
-      <button type="button" className={styles.deleteButton} disabled={validSelectedIds.size === 0} onClick={() => setConfirmationOpen(true)}>
-        <Trash2 size={15} /> Delete selected
-      </button>
+    <div className={`${styles.managerBar} ${selectionMode ? "" : styles.managerBarIdle}`}>
+      {selectionMode ? <>
+        <button type="button" className={styles.selectAll} onClick={toggleAll} aria-pressed={allSelected}>
+          {allSelected ? <CheckSquare2 size={17} /> : <Square size={17} />}
+          <span>Select all</span>
+        </button>
+        <p aria-live="polite"><strong>{validSelectedIds.size}</strong> selected</p>
+        <div className={styles.selectionActions}>
+          <button type="button" className={styles.cancelSelection} onClick={leaveSelectionMode}>Cancel</button>
+          <button type="button" className={styles.deleteButton} disabled={validSelectedIds.size === 0} onClick={() => setConfirmationOpen(true)}>
+            <Trash2 size={15} /> Delete selected
+          </button>
+        </div>
+      </> : <>
+        <p>Manage saved guest responses</p>
+        <button type="button" className={styles.deleteButton} onClick={() => setSelectionMode(true)}>
+          <Trash2 size={15} /> Delete responses
+        </button>
+      </>}
     </div>
 
     {deleteState.status === "success" && <div className={styles.successNotice} role="status"><Check size={15} />{deleteState.message}</div>}
@@ -91,11 +108,11 @@ export default function ResponseManager({ responses }: { responses: RsvpResponse
     <div className={styles.responseList}>
       {responses.map((response) => {
         const selected = selectedIds.has(response.id);
-        return <article className={`${styles.responseCard} ${selected ? styles.selectedCard : ""}`} key={response.id}>
-          <label className={styles.cardSelector}>
+        return <article className={`${styles.responseCard} ${selectionMode ? styles.selectingCard : ""} ${selected ? styles.selectedCard : ""}`} key={response.id}>
+          {selectionMode && <label className={styles.cardSelector}>
             <input type="checkbox" checked={selected} onChange={() => toggleResponse(response.id)} aria-label={`Select ${response.full_name}`} />
             <span aria-hidden="true">{selected ? <Check size={14} /> : null}</span>
-          </label>
+          </label>}
           <div className={styles.responseTop}>
             <div><h3>{response.full_name}</h3><time dateTime={response.created_at}><Clock3 size={13} />{responseDate.format(new Date(response.created_at))}</time></div>
             <span className={response.attendance === "yes" ? styles.accepted : styles.declined}>{response.attendance === "yes" ? <Check size={13} /> : <X size={13} />}{response.attendance === "yes" ? "Attending" : "Declined"}</span>

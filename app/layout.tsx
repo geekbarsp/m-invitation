@@ -15,7 +15,10 @@ export const metadata: Metadata = {
   ),
   title: "Mardy Morales & Mayumi Vergara — November 15, 2026",
   description: "Join Mardy Morales and Mayumi Vergara for their garden wedding at Abby's Event Center in Zaragoza, Nueva Ecija.",
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  icons: {
+    icon: [{ url: "/favicon-mm.png", type: "image/png", sizes: "512x512" }],
+    shortcut: "/favicon-mm.png",
+  },
   openGraph: {
     title: "Mardy Morales & Mayumi Vergara",
     description: "November 15, 2026 · Zaragoza, Nueva Ecija",

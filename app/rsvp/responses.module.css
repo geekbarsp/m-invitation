@@ -11,8 +11,13 @@
   box-shadow: 0 10px 30px rgba(53, 72, 91, 0.06);
 }
 
+.managerBarIdle {
+  grid-template-columns: 1fr auto;
+}
+
 .selectAll,
-.deleteButton {
+.deleteButton,
+.cancelSelection {
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -51,7 +56,21 @@
   background: #8f5960;
 }
 
+.selectionActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancelSelection {
+  border: 1px solid rgba(82, 108, 132, 0.18);
+  color: #667b8d;
+  background: transparent;
+}
+
 .selectAll:hover,
+.cancelSelection:hover,
 .deleteButton:not(:disabled):hover {
   transform: translateY(-1px);
 }
@@ -83,13 +102,17 @@
 .responseCard {
   position: relative;
   min-width: 0;
-  padding: 22px 22px 20px 57px;
+  padding: 22px 22px 20px;
   overflow: hidden;
   border: 1px solid rgba(82, 108, 132, 0.14);
   border-radius: 20px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(237, 243, 247, 0.72));
   box-shadow: 0 14px 35px rgba(57, 77, 97, 0.07);
   transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+.selectingCard {
+  padding-left: 57px;
 }
 
 .responseCard:hover {
@@ -416,8 +439,15 @@
   }
 
   .deleteButton {
-    grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .managerBar:not(.managerBarIdle) .selectionActions {
+    grid-column: 1 / -1;
+  }
+
+  .selectionActions > button {
+    flex: 1;
   }
 
   .responseList {
@@ -426,8 +456,12 @@
   }
 
   .responseCard {
-    padding: 18px 15px 17px 49px;
+    padding: 18px 15px 17px;
     border-radius: 16px;
+  }
+
+  .selectingCard {
+    padding-left: 49px;
   }
 
   .cardSelector {
