@@ -288,7 +288,7 @@ export default function InvitationExperience() {
             src="/assets/stationery-clean-v2.png"
             width={1025}
             height={1535}
-            alt="Olive and ivory wedding stationery suite for Mayumi and Mardy"
+            alt="Blue and ivory wedding stationery suite for Mayumi and Mardy"
             loading="eager"
           />
           <div className="stationery-copy stationery-monogram">M<span>&amp;</span>M</div>
@@ -336,7 +336,7 @@ export default function InvitationExperience() {
               </div>
               <div className="popup-envelope-asset">
                 <div className="popup-envelope-sheet">
-                  <Image className="popup-envelope-image" src="/assets/stationery-clean-v2.png" width={1025} height={1535} sizes="(max-width: 800px) 55vw, 460px" alt="Ivory and olive wedding stationery with flowers" priority />
+                  <Image className="popup-envelope-image" src="/assets/stationery-clean-v2.png" width={1025} height={1535} sizes="(max-width: 800px) 55vw, 460px" alt="Ivory and blue wedding stationery with flowers" priority />
                   <div className="popup-stationery-copy popup-stationery-monogram">M<span>&amp;</span>M</div>
                   <div className="popup-stationery-copy popup-stationery-quote"><span>In you,</span><strong>I found my<br />forever.</strong></div>
                   <div className="popup-stationery-copy popup-stationery-invite">

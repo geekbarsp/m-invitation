@@ -29,8 +29,8 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, .76);
   border-radius: 30px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .76), rgba(239, 234, 220, .5));
-  box-shadow: 0 25px 65px rgba(52, 61, 39, .11), inset 0 1px 0 #fff;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .82), rgba(208, 218, 224, .5));
+  box-shadow: 0 25px 65px rgba(63, 83, 103, .13), inset 0 1px 0 #fff;
   backdrop-filter: blur(16px);
 }
 
@@ -41,15 +41,15 @@
   bottom: -75px;
   width: 190px;
   aspect-ratio: 1;
-  border: 1px solid rgba(86, 104, 61, .16);
+  border: 1px solid rgba(110, 132, 161, .2);
   border-radius: 50%;
-  box-shadow: 0 0 0 28px rgba(86, 104, 61, .035);
+  box-shadow: 0 0 0 28px rgba(110, 132, 161, .05);
 }
 
 .entourage-panel h3 {
   max-width: 350px;
   margin: 48px 0 24px;
-  color: #3e4c2d;
+  color: #616e7d;
   font: 400 clamp(35px, 4vw, 52px)/.95 var(--font-display), serif;
 }
 
@@ -61,7 +61,7 @@
 .entourage-panel b {
   display: block;
   margin-bottom: 6px;
-  color: #5b6843;
+  color: #6e84a1;
   font: 700 8px var(--font-sans), sans-serif;
   letter-spacing: .18em;
   text-transform: uppercase;
@@ -93,12 +93,12 @@
   justify-content: space-between;
   gap: 20px;
   padding: 14px 0;
-  border-top: 1px solid rgba(60, 72, 43, .19);
+  border-top: 1px solid rgba(82, 108, 132, .2);
   font: 400 16px var(--font-display), serif;
 }
 
 .entourage-panel li:last-child {
-  border-bottom: 1px solid rgba(60, 72, 43, .19);
+  border-bottom: 1px solid rgba(82, 108, 132, .2);
 }
 
 .entourage-panel li b {
@@ -171,8 +171,8 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, .76);
   border-radius: 30px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .78), rgba(239, 234, 220, .48));
-  box-shadow: 0 24px 62px rgba(52, 61, 39, .11), inset 0 1px 0 #fff;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .84), rgba(208, 218, 224, .5));
+  box-shadow: 0 24px 62px rgba(63, 83, 103, .13), inset 0 1px 0 #fff;
   backdrop-filter: blur(16px);
 }
 
@@ -194,7 +194,7 @@
 }
 
 .main-attire-card > span {
-  color: #6a7651;
+  color: #6e84a1;
   font-size: 8px;
   font-weight: 700;
   letter-spacing: .2em;
@@ -203,7 +203,7 @@
 .main-attire-card h3 {
   grid-column: 1 / -1;
   margin: 13px 0 5px;
-  color: #3e4c2d;
+  color: #616e7d;
   font: 400 clamp(30px, 3vw, 42px)/1 var(--font-display), serif;
 }
 
@@ -226,8 +226,8 @@
   place-items: center;
   padding: 110px 8vw;
   overflow: hidden;
-  color: #f7f2e6;
-  background: radial-gradient(circle at 50% 30%, #64734a, #3a492b 48%, #27351e);
+  color: #f7f9fb;
+  background: radial-gradient(circle at 50% 30%, #748ebd, #596f87 48%, #3d5065);
 }
 
 .main-gifts::before {
@@ -248,13 +248,13 @@
   border: 1px solid rgba(255, 255, 255, .25);
   border-radius: 38px;
   background: linear-gradient(145deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .045));
-  box-shadow: 0 35px 90px rgba(18, 29, 12, .28), inset 0 1px 0 rgba(255, 255, 255, .2);
+  box-shadow: 0 35px 90px rgba(31, 47, 64, .3), inset 0 1px 0 rgba(255, 255, 255, .2);
   text-align: center;
   backdrop-filter: blur(17px);
 }
 
 .gift-glass h2 em {
-  color: #e6d7ad;
+  color: #d0dae0;
   font: 400 1.05em/1 var(--font-script), cursive;
 }
 
