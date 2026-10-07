@@ -43,10 +43,10 @@ export const invitation = {
     ["Bernard Tagaza", "Summer Revollido"],
     ["James Allen Galman", "Janelle Cordova"],
     ["Wendel Geronimo", "Cinderella Juanitas"],
-    ["Mike Reniel Abinion", "Joyce Ann Quiambao"],
+    ["Jet Axel Dela Cruz", "Joyce Ann Quiambao"],
     ["Joshua Vergara", "Edlyn Bustamante"],
     ["John Hendrix Dela Cruz", "Kyla Sagat"],
-    ["Jet Axel Dela Cruz", "Erica Jane Dela Cruz"],
+    ["Mike Reniel Abinion", "Erica Jane Dela Cruz"],
   ],
   weddingParty: {
     bestMan: "Ranjiet Morales",
