@@ -32,6 +32,7 @@ export const invitation = {
     ["Moises Geronimo", "Hilda Valentino"],
     ["Tomas Aurelio", "Maurin Benoza"],
     ["Sonny Esguerra", "Rowena Tagaza"],
+    ["Edwin Panginen", "Josephine Morales"],
     ["Ever Tambongco", "Girlie Patimo"],
     ["Cesar Revollido", "Catherine Co Lirio"],
     ["Renato Arimbuyutan", "Aljay Cortez"],
