@@ -41,7 +41,7 @@ export const invitation = {
     ["Zaki Gasapos", "Rochelle Vergara"],
     ["Aldrin Rivera", "Allia Marie Eser Jose"],
     ["Jomari Cosilit", "Jillian Alferez"],
-    ["Bernard Tagaza", "Summer Revollido"],
+    ["Bernard Tagaza", "Summer Quiambao"],
     ["James Allen Galman", "Janelle Cordova"],
     ["Nathaniel Paladan", "Margarette Binuya"],
     ["Wendel Geronimo", "Cinderella Juanitas"],
