@@ -36,9 +36,9 @@ export const invitation = {
     ["Edwin Panginen", "Josephine Morales"],
     ["Ever Tambongco", "Girlie Patimo"],
     ["Cesar Revollido", "Catherine Co Lirio"],
+    ["Alexander Aurelio"],
     ["Renato Arimbuyutan"],
-    ["Aljay Cortez"],
-    ["Alexander Aurelio"]
+    ["Aljay Cortez"]
   ],
   secondarySponsors: [
     ["Zaki Gasapos", "Rochelle Vergara"],
