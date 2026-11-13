@@ -21,7 +21,7 @@ export const invitation = {
   principalSponsors: [
     ["Ali Sadjjad", "April Rose Narciso"],
     ["Alexander Driz", "Conie Cordero"],
-    ["Alexander Aurelio", "Marissa Berber"],
+    ["Joselito Gasapos", "Marissa Berber"],
     ["Aldeen Paladan", "Jennifer Fajardo"],
     ["Joey Galang", "Judie Halili"],
     ["Jorge Alberto", "Nenita Espino"],
@@ -36,7 +36,9 @@ export const invitation = {
     ["Edwin Panginen", "Josephine Morales"],
     ["Ever Tambongco", "Girlie Patimo"],
     ["Cesar Revollido", "Catherine Co Lirio"],
-    ["Renato Arimbuyutan", "Aljay Cortez"],
+    ["Renato Arimbuyutan"],
+    ["Aljay Cortez"],
+    ["Alexander Aurelio"]
   ],
   secondarySponsors: [
     ["Zaki Gasapos", "Rochelle Vergara"],

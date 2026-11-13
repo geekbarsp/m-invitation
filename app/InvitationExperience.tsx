@@ -25,10 +25,10 @@ const ambientPetals = Array.from({ length: 12 }, (_, index) => ({
   duration: 11 + (index % 5) * 1.8,
 }));
 
-type NamePair = readonly [string, string];
+type NamePair = readonly [string, string?];
 
 function PeoplePairs({ pairs }: { pairs: readonly NamePair[] }) {
-  return <div className="people-pairs">{pairs.map(([first, second]) => <p key={`${first}-${second}`}><span>{first}</span><i>&amp;</i><span>{second}</span></p>)}</div>;
+  return <div className="people-pairs">{pairs.map(([first, second]) => <p key={`${first}-${second ?? ""}`}>{second ? <><span>{first}</span><i>&amp;</i><span>{second}</span></> : <span>{first}</span>}</p>)}</div>;
 }
 
 function ChildrenAndBearers() {
